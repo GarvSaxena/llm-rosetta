@@ -6,8 +6,8 @@ Google is supported through two shim endpoints: one for the generateContent API 
 
 | Shim Name | Base Type | Default Base URL | API Key Env |
 |:---|:---|:---|:---|
-| `google` | `google_generate` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` |
-| `google_interactions` | `google_interactions` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` |
+| `google--google_generate` | `google_generate` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` |
+| `google--google_interactions` | `google_interactions` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` |
 
 ## Reasoning Support
 
@@ -22,8 +22,8 @@ Both endpoints share the same reasoning configuration:
 
 | Shim | Type | Transform | Purpose |
 |:---|:---|:---|:---|
-| `google` | IR | `hoist_late_system_messages()` | Moves late system messages to conversation start |
-| `google_interactions` | — | — | No transforms applied |
+| `google--google_generate` | IR | `hoist_late_system_messages()` | Moves late system messages to conversation start |
+| `google--google_interactions` | — | — | No transforms applied |
 
 ## Gateway Configuration
 
@@ -33,7 +33,7 @@ Both endpoints share the same reasoning configuration:
     {
       "providers": {
         "google": {
-          "shim": "google",
+          "shim": "google--google_generate",
           "api_key": "${GOOGLE_API_KEY}"
         }
       }
@@ -46,7 +46,7 @@ Both endpoints share the same reasoning configuration:
     {
       "providers": {
         "google-interactions": {
-          "shim": "google_interactions",
+          "shim": "google--google_interactions",
           "api_key": "${GOOGLE_API_KEY}"
         }
       }
@@ -55,5 +55,5 @@ Both endpoints share the same reasoning configuration:
 
 ## Notes
 
-- The `google` shim targets the generateContent endpoint, which is the standard Gemini API. The `google_interactions` shim targets the newer Interactions API format.
+- The `google--google_generate` shim targets the generateContent endpoint, which is the standard Gemini API. The `google--google_interactions` shim targets the newer Interactions API format.
 - Google uses API key authentication via the `key` query parameter rather than the `Authorization` header used by most other providers.

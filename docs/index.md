@@ -41,10 +41,10 @@ Provider A ↔ **IR** ↔ Provider B — any format in, any format out.
     Convert between provider formats in your own code — no server needed:
 
     ```python
-    from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+    from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 
-    openai_conv = OpenAIChatConverter()
-    anthropic_conv = AnthropicConverter()
+    openai_conv = ChatCompletionsConverter()
+    anthropic_conv = MessagesConverter()
 
     # OpenAI format → IR → Anthropic format
     ir_request = openai_conv.request_from_provider(openai_request)
@@ -89,11 +89,11 @@ Provider A ↔ **IR** ↔ Provider B — any format in, any format out.
 
 | Provider | API Standard | ProviderType |
 |----------|-------------|:------------:|
-| OpenAI | Chat Completions | `openai_chat` |
-| OpenAI | Responses | `openai_responses` |
+| OpenAI | Chat Completions | `chat_completions` |
+| OpenAI | Responses | `open_responses` |
 | Open Responses | Vendor-neutral standard | `open_responses` |
-| Anthropic | Messages | `anthropic` |
-| Google | GenAI | `google` |
+| Anthropic | Messages | `messages` |
+| Google | GenAI | `google_generate` |
 | Google | Interactions | `google_interactions` |
 
 See [API Standards](guide/api-standards.md) for detailed format comparisons, and [Provider Compatibility](guide/compatibility.md) for the full provider support matrix.

@@ -371,7 +371,7 @@ anthropic_request = {
 }
 
 # Convert to OpenAI Chat format
-openai_request = convert(anthropic_request, target="openai_chat")
+openai_request = convert(anthropic_request, target="chat_completions")
 # Result includes: {"reasoning_effort": "high", ...}
 
 # Convert to Google GenAI format

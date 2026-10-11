@@ -42,6 +42,22 @@ All notable changes to LLM-Rosetta are documented here. This project follows [Ke
 
 - **Gateway module reorganization** (PRs [#739](https://github.com/Oaklight/llm-rosetta/pull/739), [#738](https://github.com/Oaklight/llm-rosetta/pull/738), [#744](https://github.com/Oaklight/llm-rosetta/pull/744)): backend files moved into `gateway/middleware/` and `gateway/pipelines/` subpackages; admin JS into `js/core/`, `js/tabs/`, `js/components/`. **Old flat import paths (`gateway.auth`, `gateway.embeddings`, etc.) no longer work** — use `gateway.middleware.*` / `gateway.pipelines.*`. See `argo-proxy` [#179](https://github.com/Oaklight/argo-proxy/pull/179) for migration.
 
+- **(breaking) Anthropic base renamed to `messages`; shim names canonicalised** (PR [#923](https://github.com/Oaklight/llm-rosetta/pull/923), issue [#917](https://github.com/Oaklight/llm-rosetta/issues/917)): the Anthropic Messages API base type is now the neutral `messages` — the format is a de-facto standard re-implemented by many providers, so it is no longer tied to the `anthropic` vendor. The converter module moved to `llm_rosetta.converters.messages` and the class to `MessagesConverter` (`AnthropicConverter` / `converters.anthropic` remain as deprecated aliases). Shim names are now canonical `<provider>--<base>`: `openai--chat_completions`, `openai--open_responses`, `anthropic--messages`, `google--google_generate`, `google--google_interactions`, and `<provider>--chat_completions` / `<provider>--open_responses` for the rest. The shim registry is canonical-only — a base *format* never resolves to a vendor shim (`get_shim("google_generate")` returns `None`; `google_generate` names the format while `google--google_generate` names the shim). Base converters are vendor-neutral: a bare `type: <base>` no longer carries an implied vendor `base_url` or API-key env var — those are shown only as an admin placeholder, so you must set `base_url` explicitly or use a `shim:`. To ease the transition the gateway rewrites legacy names in `providers.*.shim` / `providers.*.type` at startup, once and idempotently, saving a `.pre-migration.bak`; a name it cannot map is rejected with a `ValueError` pointing at the docs. Legacy names still warn and resolve at the library boundary until **0.16.0** ([#919](https://github.com/Oaklight/llm-rosetta/issues/919)), when they are removed.
+
+  | Legacy | Canonical |
+  |--------|-----------|
+  | base `anthropic` | `messages` |
+  | shim `anthropic` | `anthropic--messages` |
+  | shim `openai` | `openai--chat_completions` |
+  | shim `openai_responses` | `openai--open_responses` |
+  | shim `google` / `google_generate` | `google--google_generate` |
+  | shim `google_interactions` | `google--google_interactions` |
+  | shim `<provider>--openai_chat` | `<provider>--chat_completions` |
+  | shim `<provider>--openai_responses` | `<provider>--open_responses` |
+  | type `openai_chat` | `chat_completions` |
+  | type `google` / `google-genai` | `google_generate` |
+  | base `google_generate` / `google_interactions` | unchanged |
+
 ### Changed
 
 - **Provider-name canonicalisation** (issue [#908](https://github.com/Oaklight/llm-rosetta/issues/908), PR [#914](https://github.com/Oaklight/llm-rosetta/pull/914)): `google_generate` is now the canonical name for the Google generateContent format; `google` and `google-genai` are deprecated aliases that auto-migrate at every boundary (gateway JSONC `type:`/`shim:`, request detection, library `source_provider`/`target_provider`, shim resolution) through a new shared mechanism (`llm_rosetta.provider_names`). The legacy spellings keep working and emit a `DeprecationWarning`; migration is normalisation at load/entry, not an on-disk rewrite. The bundled Google shim is registered under the canonical `google_generate` name. The deprecated spellings are planned for removal in **0.16.0** (see [#919](https://github.com/Oaklight/llm-rosetta/issues/919)).

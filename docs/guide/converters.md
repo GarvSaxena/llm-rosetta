@@ -13,9 +13,9 @@ title: Using Converters
 ## Creating a Converter
 
 ```python
-from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 
-converter = OpenAIChatConverter()
+converter = ChatCompletionsConverter()
 ```
 
 ## Converting Requests
@@ -56,9 +56,9 @@ provider_messages, warnings = converter.messages_to_provider(ir_messages)
 ## Cross-Provider Workflow
 
 ```python
-from llm_rosetta import OpenAIChatConverter, GoogleGenerateConverter
+from llm_rosetta import ChatCompletionsConverter, GoogleGenerateConverter
 
-openai_conv = OpenAIChatConverter()
+openai_conv = ChatCompletionsConverter()
 google_conv = GoogleGenerateConverter()
 
 # OpenAI → IR
@@ -228,13 +228,13 @@ LLM-Rosetta fixes both directions automatically and emits `WARNING`-level logs s
 
 ```python
 # For OpenAI Chat Completions format
-from llm_rosetta.converters.openai_chat.tool_ops import fix_orphaned_tool_calls
+from llm_rosetta.converters.chat_completions.tool_ops import fix_orphaned_tool_calls
 
 messages = fix_orphaned_tool_calls(messages)
 messages = fix_orphaned_tool_calls(messages, placeholder="[Skipped by user]")
 
 # For OpenAI Responses format
-from llm_rosetta.converters.openai_responses.tool_ops import fix_orphaned_tool_calls
+from llm_rosetta.converters.open_responses.tool_ops import fix_orphaned_tool_calls
 
 items = fix_orphaned_tool_calls(items)
 ```

@@ -66,10 +66,10 @@ Five CLI tools were tested with their native API format routed through the gatew
 | CLI Tool | API Format | Source → Target | Chat | Stream | Tool Calls | Multi-Round |
 |----------|-----------|-----------------|:----:|:------:|:----------:|:-----------:|
 | [Codex CLI](https://github.com/openai/codex) | OpenAI Responses | passthrough | ✓ | ✓ | ✓ | ✓ |
-| [Kilo Code](https://kilocode.ai/) | OpenAI Chat | `openai_chat` → `openai_responses` | ✓ | ✓ | ✓ | ✓ |
-| [OpenCode](https://opencode.ai/) | OpenAI Chat | `openai_chat` → `openai_responses` | ✓ | ✓ | ✓ | ✓ |
+| [Kilo Code](https://kilocode.ai/) | OpenAI Chat | `chat_completions` → `open_responses` | ✓ | ✓ | ✓ | ✓ |
+| [OpenCode](https://opencode.ai/) | OpenAI Chat | `chat_completions` → `open_responses` | ✓ | ✓ | ✓ | ✓ |
 | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | Anthropic Messages | passthrough | ✓ | ✓ | ✓ | ✓ |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | Google GenAI | `google` → `openai_chat` | ✓ | ✓ | ✓ | ✓ |
+| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | Google GenAI | `google_generate` → `chat_completions` | ✓ | ✓ | ✓ | ✓ |
 
 ---
 

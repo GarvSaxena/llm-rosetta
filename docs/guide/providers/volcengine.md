@@ -6,12 +6,12 @@ Volcengine (ByteDance / Doubao) is supported through two shim endpoints covering
 
 | Shim Name | Base Type | Default Base URL | API Key Env |
 |:---|:---|:---|:---|
-| `volcengine--openai_chat` | `openai_chat` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` |
-| `volcengine--openai_responses` | `openai_responses` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` |
+| `volcengine--chat_completions` | `chat_completions` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` |
+| `volcengine--open_responses` | `open_responses` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` |
 
 ## Reasoning Support
 
-**Chat Completions (`volcengine--openai_chat`):**
+**Chat Completions (`volcengine--chat_completions`):**
 
 | Field | Value |
 |:---|:---|
@@ -19,7 +19,7 @@ Volcengine (ByteDance / Doubao) is supported through two shim endpoints covering
 | Effort range | `minimal` → `high` |
 | Thinking modes | `auto`, `enabled`, `disabled` |
 
-**Responses API (`volcengine--openai_responses`):**
+**Responses API (`volcengine--open_responses`):**
 
 | Field | Value |
 |:---|:---|
@@ -30,7 +30,7 @@ Volcengine (ByteDance / Doubao) is supported through two shim endpoints covering
 
 | Shim | Type | Transform | Purpose |
 |:---|:---|:---|:---|
-| `volcengine--openai_chat` | Post-IR | `strip_fields("logprobs", "top_logprobs")` | Removes unsupported request fields |
+| `volcengine--chat_completions` | Post-IR | `strip_fields("logprobs", "top_logprobs")` | Removes unsupported request fields |
 | Both | IR | `hoist_late_system_messages()` | Moves late system messages to conversation start |
 
 ## Gateway Configuration
@@ -41,7 +41,7 @@ Volcengine (ByteDance / Doubao) is supported through two shim endpoints covering
     {
       "providers": {
         "volcengine": {
-          "shim": "volcengine--openai_chat",
+          "shim": "volcengine--chat_completions",
           "api_key": "${VOLCENGINE_API_KEY}"
         }
       }
@@ -54,7 +54,7 @@ Volcengine (ByteDance / Doubao) is supported through two shim endpoints covering
     {
       "providers": {
         "volcengine-responses": {
-          "shim": "volcengine--openai_responses",
+          "shim": "volcengine--open_responses",
           "api_key": "${VOLCENGINE_API_KEY}"
         }
       }

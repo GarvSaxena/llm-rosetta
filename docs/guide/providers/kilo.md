@@ -18,7 +18,7 @@ ordinary provider that needs no credential, shown in the admin UI as
 
 | Shim Name | Base Type | Default Base URL | Credentials |
 |:---|:---|:---|:---|
-| `kilo--openai_chat` | `openai_chat` | `https://api.kilo.ai/api/gateway` | none (keyless) |
+| `kilo--chat_completions` | `chat_completions` | `https://api.kilo.ai/api/gateway` | none (keyless) |
 
 The shim declares `display_name: Kilo`, `free_source: true`, a logo, and
 `connection.keyless: true`:
@@ -51,7 +51,7 @@ for it fail upstream; remove it from the table.
 {
   "providers": {
     "kilo-free": {
-      "type": "kilo--openai_chat"
+      "type": "kilo--chat_completions"
       // no api_key — the free pool needs none.
       // add "api_key": "${KILO_API_KEY}" to use your own Kilo account instead.
     }

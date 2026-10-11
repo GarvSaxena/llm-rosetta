@@ -87,7 +87,7 @@ GET /admin/api/config
     "openai": {
       "api_key": "sk-a***abcd",
       "base_url": "https://api.openai.com/v1",
-      "type": "openai_chat"
+      "type": "chat_completions"
     }
   },
   "models": {
@@ -98,11 +98,11 @@ GET /admin/api/config
   },
   "server": {"proxy": "http://proxy:8080"},
   "credential_visible": false,
-  "known_provider_types": ["openai_chat", "openai_responses", "anthropic", "google", "google_interactions"],
+  "known_provider_types": ["chat_completions", "open_responses", "messages", "google_generate", "google_interactions"],
   "registered_shims": [
     {
-      "name": "openai",
-      "base": "openai_chat",
+      "name": "openai--chat_completions",
+      "base": "chat_completions",
       "logo": "https://...",
       "default_base_url": "https://api.openai.com/v1",
       "default_api_key_env": "OPENAI_API_KEY"
@@ -132,7 +132,7 @@ PUT /admin/api/config/providers/<name>
 |-------|------|----------|-------------|
 | `api_key` | `string` | Yes* | Provider API key.  Omit or send empty to keep the existing key when editing. |
 | `base_url` | `string` | Yes | Provider base URL. |
-| `type` | `string` | No | API standard or shim name (e.g. `openai_chat`, `anthropic`). |
+| `type` | `string` | No | API standard or shim name (e.g. `chat_completions`, `messages`). |
 | `proxy` | `string` | No | Per-provider proxy URL. |
 | `rename_from` | `string` | No | Original name when renaming — old entry is removed and model refs updated. |
 
@@ -291,7 +291,7 @@ GET /admin/api/config/providers/<name>/models
 ```json
 {
   "provider": "openai",
-  "api_standard": "openai_chat",
+  "api_standard": "chat_completions",
   "models": ["gpt-4o", "gpt-4o-mini", "o3-mini"]
 }
 ```
@@ -509,8 +509,8 @@ GET /admin/api/metrics?seconds=60
   "error_rate": 0.0097,
   "active_streams": 3,
   "by_model": {"gpt-4o": 800, "claude-sonnet-4-20250514": 434},
-  "by_source_provider": {"openai_chat": 1000, "anthropic": 234},
-  "by_target_provider": {"openai": 800, "anthropic": 434},
+  "by_source_provider": {"chat_completions": 1000, "messages": 234},
+  "by_target_provider": {"chat_completions": 800, "messages": 434},
   "by_status_code": {"200": 1222, "500": 12},
   "series": [
     {"t": -59, "count": 2, "avg_ms": 450.12, "errors": 0},
@@ -553,7 +553,7 @@ GET /admin/api/requests?limit=50&offset=0&model=gpt-4o&provider=openai&status=ok
       "id": "a1b2c3d4e5f6...",
       "timestamp": "2025-01-15T12:00:00+00:00",
       "model": "gpt-4o",
-      "source_provider": "openai_chat",
+      "source_provider": "chat_completions",
       "target_provider": "openai",
       "is_stream": false,
       "status_code": 200,
@@ -753,7 +753,7 @@ GET /admin/api/profiling/results
       "timestamp": "2025-01-15T12:00:00+00:00",
       "request_id": "a1b2c3d4",
       "model": "gpt-4o",
-      "source": "openai_chat",
+      "source": "chat_completions",
       "target": "openai",
       "is_stream": false,
       "duration_ms": 1234.56

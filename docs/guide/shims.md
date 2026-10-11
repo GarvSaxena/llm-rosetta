@@ -11,9 +11,9 @@ The **shim layer** bridges this gap. A shim is a lightweight identity card that 
 ## Architecture
 
 ```text
-ProviderShim ("deepseek")
-├── name: "deepseek"
-├── base: "openai_chat"              → selects the converter
+ProviderShim ("deepseek--chat_completions")
+├── name: "deepseek--chat_completions"
+├── base: "chat_completions"              → selects the converter
 ├── default_base_url: "https://api.deepseek.com"
 ├── default_api_key_env: "DEEPSEEK_API_KEY"
 ├── logo: "https://cdn.jsdelivr.net/..."
@@ -61,7 +61,7 @@ Example `provider.yaml`:
 
 ```yaml
 name: deepseek
-base: openai_chat
+base: chat_completions
 default_base_url: https://api.deepseek.com
 default_api_key_env: DEEPSEEK_API_KEY
 logo: https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/deepseek.svg
@@ -145,7 +145,7 @@ def register_shims():
     if os.getenv("MY_INTERNAL_PROVIDER"):
         register_shim(ProviderShim(
             name="my-internal",
-            base="openai_chat",
+            base="chat_completions",
             default_base_url="http://internal:8080/v1",
         ))
 ```
@@ -159,34 +159,34 @@ LLM-Rosetta ships with 16 built-in provider shims:
 
 | Name | Base | Default Base URL | API Key Env | Transforms |
 |------|------|-----------------|-------------|------------|
-| `openai` | `openai_chat` | `https://api.openai.com/v1` | `OPENAI_API_KEY` | — |
-| `openai_responses` | `openai_responses` | `https://api.openai.com/v1` | `OPENAI_API_KEY` | — |
-| `anthropic` | `anthropic` | `https://api.anthropic.com` | `ANTHROPIC_API_KEY` | — |
-| `google` | `google` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` | — |
-| `deepseek` | `openai_chat` | `https://api.deepseek.com` | `DEEPSEEK_API_KEY` | strips `n`, `logit_bias`, `seed` |
-| `volcengine--openai_chat` | `openai_chat` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` | strips `logprobs`, `top_logprobs` |
-| `volcengine--openai_responses` | `openai_responses` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` | — |
-| `xai` | `openai_chat` | `https://api.x.ai/v1` | `XAI_API_KEY` | strips `logit_bias` |
-| `qwen` | `openai_chat` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `DASHSCOPE_API_KEY` | strips `frequency_penalty`, `logit_bias` |
-| `moonshot` | `openai_chat` | `https://api.moonshot.cn/v1` | `MOONSHOT_API_KEY` | strips `logprobs`, `top_logprobs`, `logit_bias`, `seed` |
-| `minimax--openai_chat` | `openai_chat` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` | strips + reasoning_split injection |
-| `minimax--anthropic` | `anthropic` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` | — |
-| `zhipu` | `openai_chat` | `https://open.bigmodel.cn/api/paas/v4` | `ZHIPU_API_KEY` | strips `n`, penalties, `logprobs`, `logit_bias`, `seed` |
-| `openrouter` | `openai_chat` | `https://openrouter.ai/api/v1` | `OPENROUTER_API_KEY` | renames `reasoning` → `reasoning_content` |
-| `argo--openai_chat` | `openai_chat` | `https://apps.inside.anl.gov/argoapi/v1` | `ARGO_API_KEY` | `max_tokens` → `max_completion_tokens` |
-| `argo--anthropic` | `anthropic` | `https://apps.inside.anl.gov/argoapi` | `ARGO_API_KEY` | OpenAI response normalization |
+| `openai--chat_completions` | `chat_completions` | `https://api.openai.com/v1` | `OPENAI_API_KEY` | — |
+| `openai--open_responses` | `open_responses` | `https://api.openai.com/v1` | `OPENAI_API_KEY` | — |
+| `anthropic--messages` | `messages` | `https://api.anthropic.com` | `ANTHROPIC_API_KEY` | — |
+| `google--google_generate` | `google_generate` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` | — |
+| `deepseek--chat_completions` | `chat_completions` | `https://api.deepseek.com` | `DEEPSEEK_API_KEY` | strips `n`, `logit_bias`, `seed` |
+| `volcengine--chat_completions` | `chat_completions` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` | strips `logprobs`, `top_logprobs` |
+| `volcengine--open_responses` | `open_responses` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` | — |
+| `xai` | `chat_completions` | `https://api.x.ai/v1` | `XAI_API_KEY` | strips `logit_bias` |
+| `qwen` | `chat_completions` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `DASHSCOPE_API_KEY` | strips `frequency_penalty`, `logit_bias` |
+| `moonshot` | `chat_completions` | `https://api.moonshot.cn/v1` | `MOONSHOT_API_KEY` | strips `logprobs`, `top_logprobs`, `logit_bias`, `seed` |
+| `minimax--chat_completions` | `chat_completions` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` | strips + reasoning_split injection |
+| `minimax--messages` | `messages` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` | — |
+| `zhipu` | `chat_completions` | `https://open.bigmodel.cn/api/paas/v4` | `ZHIPU_API_KEY` | strips `n`, penalties, `logprobs`, `logit_bias`, `seed` |
+| `openrouter--chat_completions` | `chat_completions` | `https://openrouter.ai/api/v1` | `OPENROUTER_API_KEY` | renames `reasoning` → `reasoning_content` |
+| `argo--chat_completions` | `chat_completions` | `https://apps.inside.anl.gov/argoapi/v1` | `ARGO_API_KEY` | `max_tokens` → `max_completion_tokens` |
+| `argo--messages` | `messages` | `https://apps.inside.anl.gov/argoapi` | `ARGO_API_KEY` | OpenAI response normalization |
 
 ## Argo Shims
 
-`argo--openai_chat` and `argo--anthropic` target the **Argo gateway** — a proxy layer used at certain institutions (such as Argonne National Laboratory) that fronts multiple upstream LLM providers behind a single endpoint.
+`argo--chat_completions` and `argo--messages` target the **Argo gateway** — a proxy layer used at certain institutions (such as Argonne National Laboratory) that fronts multiple upstream LLM providers behind a single endpoint.
 
 Both shims use `model_id_field: internal_id` — the model identifier is sent as `internal_id` instead of `model`.
 
-### `argo--openai_chat`
+### `argo--chat_completions`
 
 OpenAI-compatible shim with one transform: `max_tokens` → `max_completion_tokens` (newer OpenAI models reject the deprecated name).
 
-### `argo--anthropic`
+### `argo--messages`
 
 - **Model-level `thinking_type` override**: `thinking_type: enabled` by default, with `model_overrides` for `claudeopus47: thinking_type: adaptive` (Vertex AI backend). Handled declaratively via reasoning config.
 - **`unsigned_reasoning_blocks: preserve`**: Prior thinking blocks without valid signatures are preserved in metadata instead of being forwarded (avoids Argo 400 errors).
@@ -200,7 +200,7 @@ Override the `default_base_url` in your gateway config:
 {
   "providers": {
     "argo": {
-      "shim": "argo--anthropic",
+      "shim": "argo--messages",
       "base_url": "https://your-argo-instance.example.com/",
       "api_key": "${ARGO_API_KEY}"
     }
@@ -228,8 +228,8 @@ Since v0.6.8, provider shims can declare how they handle reasoning effort and di
 ### Example: Declaring Reasoning in `provider.yaml`
 
 ```yaml
-name: anthropic
-base: anthropic
+name: anthropic--messages
+base: messages
 default_base_url: https://api.anthropic.com
 default_api_key_env: ANTHROPIC_API_KEY
 reasoning:
@@ -245,8 +245,8 @@ reasoning:
 ```
 
 ```yaml
-name: openai
-base: openai_chat
+name: openai--chat_completions
+base: chat_completions
 default_base_url: https://api.openai.com/v1
 default_api_key_env: OPENAI_API_KEY
 reasoning:
@@ -267,8 +267,8 @@ reasoning:
 When models under the same provider have different reasoning capabilities, use `model_overrides` to declare per-model config. Each override inherits provider-level defaults for unset fields, keyed by **upstream model ID** (post-alias):
 
 ```yaml
-name: argo--anthropic
-base: anthropic
+name: argo--messages
+base: messages
 reasoning:
   thinking_type: enabled       # default for most models
   effort_map: { ... }
@@ -311,7 +311,7 @@ Example in `provider.yaml`:
 
 ```yaml
 name: my-provider
-base: openai_chat
+base: chat_completions
 supports_custom_tools: true
 hoist_system_messages: true
 multimodal_tool_result: false
@@ -360,7 +360,7 @@ Transforms are applied at two levels:
 from llm_rosetta import convert
 
 # Transforms are applied automatically when source/target is a shim name
-result = convert(request_body, source="openai_chat", target="volcengine")
+result = convert(request_body, source="chat_completions", target="volcengine--chat_completions")
 # → logprobs and top_logprobs stripped from the output
 ```
 
@@ -398,10 +398,10 @@ flowchart LR
 from llm_rosetta import get_converter_for_provider
 
 # Base type — works as before
-converter = get_converter_for_provider("openai_chat")
+converter = get_converter_for_provider("chat_completions")
 
-# Shim name — resolved to "openai_chat" via the registry
-converter = get_converter_for_provider("deepseek")
+# Shim name — resolved to "chat_completions" via the registry
+converter = get_converter_for_provider("deepseek--chat_completions")
 ```
 
 ### Resolving a Base Type
@@ -411,8 +411,8 @@ Use `resolve_base()` to map a shim name to its base converter type:
 ```python
 from llm_rosetta import resolve_base
 
-resolve_base("deepseek")       # → "openai_chat"
-resolve_base("openai_chat")    # → "openai_chat" (pass-through)
+resolve_base("deepseek--chat_completions")       # → "chat_completions"
+resolve_base("chat_completions")    # → "chat_completions" (pass-through)
 resolve_base("unknown")        # → "unknown" (pass-through)
 ```
 
@@ -428,7 +428,7 @@ from llm_rosetta.transforms import strip_fields
 
 my_shim = ProviderShim(
     name="my-provider",
-    base="openai_chat",
+    base="chat_completions",
     default_base_url="https://api.my-provider.com/v1",
     default_api_key_env="MY_PROVIDER_API_KEY",
     post_ir_transforms=(strip_fields("logprobs", "seed"),),
@@ -447,7 +447,7 @@ To add a new provider to the built-in registry:
 
     ```yaml
     name: my-provider
-    base: openai_chat
+    base: chat_completions
     default_base_url: https://api.my-provider.com/v1
     default_api_key_env: MY_PROVIDER_API_KEY
     logo: https://example.com/logo.svg
@@ -485,7 +485,7 @@ In a gateway configuration file, use the `"shim"` field to reference a registere
 {
   "providers": {
     "my-deepseek": {
-      "shim": "deepseek",
+      "shim": "deepseek--chat_completions",
       "api_key": "${DEEPSEEK_API_KEY}"
       // base_url defaults to shim's default_base_url
     }

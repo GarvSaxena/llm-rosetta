@@ -6,7 +6,7 @@ Anthropic is supported through a dedicated shim for the Messages API, with model
 
 | Shim Name | Base Type | Default Base URL | API Key Env |
 |:---|:---|:---|:---|
-| `anthropic` | `anthropic` | `https://api.anthropic.com` | `ANTHROPIC_API_KEY` |
+| `anthropic--messages` | `messages` | `https://api.anthropic.com` | `ANTHROPIC_API_KEY` |
 
 ## Reasoning Support
 
@@ -51,7 +51,7 @@ Different Claude models have different thinking support. The shim applies model-
 {
   "providers": {
     "anthropic": {
-      "shim": "anthropic",
+      "shim": "anthropic--messages",
       "api_key": "${ANTHROPIC_API_KEY}"
     }
   }

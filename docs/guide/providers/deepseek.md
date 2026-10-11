@@ -6,7 +6,7 @@ DeepSeek is supported through the OpenAI Chat Completions compatible API, with s
 
 | Shim Name | Base Type | Default Base URL | API Key Env |
 |:---|:---|:---|:---|
-| `deepseek` | `openai_chat` | `https://api.deepseek.com` | `DEEPSEEK_API_KEY` |
+| `deepseek--chat_completions` | `chat_completions` | `https://api.deepseek.com` | `DEEPSEEK_API_KEY` |
 
 ## Reasoning Support
 
@@ -38,7 +38,7 @@ DeepSeek is supported through the OpenAI Chat Completions compatible API, with s
 {
   "providers": {
     "deepseek": {
-      "shim": "deepseek",
+      "shim": "deepseek--chat_completions",
       "api_key": "${DEEPSEEK_API_KEY}"
     }
   }

@@ -9,7 +9,7 @@ title: Library Quick Start
 The simplest possible use: convert one dict to another. No API keys, no SDK, no network calls.
 
 ```python
-from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 
 # Convert an OpenAI request dict → Anthropic request dict
 openai_request = {
@@ -17,8 +17,8 @@ openai_request = {
     "messages": [{"role": "user", "content": "Hello!"}],
 }
 
-ir = OpenAIChatConverter().request_from_provider(openai_request)
-anthropic_request, warnings = AnthropicConverter().request_to_provider(ir)
+ir = ChatCompletionsConverter().request_from_provider(openai_request)
+anthropic_request, warnings = MessagesConverter().request_to_provider(ir)
 
 print(anthropic_request)
 # {'model': 'gpt-4o', 'messages': [{'role': 'user', 'content': [{'type': 'text', 'text': 'Hello!'}]}], ...}
@@ -31,10 +31,10 @@ That's it — LLM-Rosetta only transforms data structures. You call the APIs you
 A more complete workflow with system messages, generation config, and multiple messages:
 
 ```python
-from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 
-openai_conv = OpenAIChatConverter()
-anthropic_conv = AnthropicConverter()
+openai_conv = ChatCompletionsConverter()
+anthropic_conv = MessagesConverter()
 
 openai_request = {
     "model": "gpt-4o",
@@ -76,7 +76,7 @@ from llm_rosetta import detect_provider, convert
 provider = detect_provider(some_request)
 
 # One-step conversion
-converted = convert(some_request, target_provider="anthropic")
+converted = convert(some_request, target_provider="messages")
 ```
 
 ## Next Steps

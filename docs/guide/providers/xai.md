@@ -6,7 +6,7 @@ xAI (Grok) is supported through the OpenAI Chat Completions compatible API.
 
 | Shim Name | Base Type | Default Base URL | API Key Env |
 |:---|:---|:---|:---|
-| `xai` | `openai_chat` | `https://api.x.ai/v1` | `XAI_API_KEY` |
+| `xai` | `chat_completions` | `https://api.x.ai/v1` | `XAI_API_KEY` |
 
 ## Reasoning Support
 

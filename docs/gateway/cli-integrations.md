@@ -248,7 +248,7 @@ Point a gateway provider at your local Ollama instance:
 
 ```jsonc
 "providers": {
-  "local-ollama": { "type": "openai_chat", "api_key": "ollama", "base_url": "http://localhost:11434/v1" }
+  "local-ollama": { "type": "chat_completions", "api_key": "ollama", "base_url": "http://localhost:11434/v1" }
 },
 "models": {
   "llama3.2": "local-ollama",
@@ -262,9 +262,9 @@ Ollama v0.13+ supports three API formats that the gateway serves:
 
 | Ollama Endpoint | Gateway Route | Converter |
 |---|---|---|
-| `/v1/chat/completions` | Same | `openai_chat` |
-| `/v1/responses` | Same | `openai_responses` (v0.13.3+) |
-| `/v1/messages` | Same | `anthropic` (v0.14.0+) |
+| `/v1/chat/completions` | Same | `chat_completions` |
+| `/v1/responses` | Same | `open_responses` (v0.13.3+) |
+| `/v1/messages` | Same | `messages` (v0.14.0+) |
 
 ---
 

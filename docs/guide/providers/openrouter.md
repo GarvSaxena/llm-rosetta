@@ -6,19 +6,19 @@ OpenRouter is supported through two shim endpoints, allowing access to its unifi
 
 | Shim Name | Base Type | Default Base URL | API Key Env |
 |:---|:---|:---|:---|
-| `openrouter--openai_chat` | `openai_chat` | `https://openrouter.ai/api/v1` | `OPENROUTER_API_KEY` |
-| `openrouter--anthropic` | `anthropic` | `https://openrouter.ai/api` | `OPENROUTER_API_KEY` |
+| `openrouter--chat_completions` | `chat_completions` | `https://openrouter.ai/api/v1` | `OPENROUTER_API_KEY` |
+| `openrouter--messages` | `messages` | `https://openrouter.ai/api` | `OPENROUTER_API_KEY` |
 
 ## Reasoning Support
 
-**Chat Completions (`openrouter--openai_chat`):**
+**Chat Completions (`openrouter--chat_completions`):**
 
 | Field | Value |
 |:---|:---|
 | Effort field | `reasoning_effort` |
 | Effort range | `low` → `xhigh` |
 
-**Anthropic (`openrouter--anthropic`):**
+**Anthropic (`openrouter--messages`):**
 
 | Field | Value |
 |:---|:---|
@@ -30,8 +30,8 @@ OpenRouter is supported through two shim endpoints, allowing access to its unifi
 
 | Shim | Type | Transform | Purpose |
 |:---|:---|:---|:---|
-| `openrouter--openai_chat` | Pre-IR | `rename_reasoning()` | Renames `message.reasoning` → `message.reasoning_content` to match OpenRouter's field naming |
-| `openrouter--anthropic` | IR | `auto_cache_breakpoints()` | Inserts cache breakpoints for prompt caching |
+| `openrouter--chat_completions` | Pre-IR | `rename_reasoning()` | Renames `message.reasoning` → `message.reasoning_content` to match OpenRouter's field naming |
+| `openrouter--messages` | IR | `auto_cache_breakpoints()` | Inserts cache breakpoints for prompt caching |
 | Both | IR | `hoist_late_system_messages()` | Moves late system messages to conversation start |
 
 ## Gateway Configuration
@@ -42,7 +42,7 @@ OpenRouter is supported through two shim endpoints, allowing access to its unifi
     {
       "providers": {
         "openrouter": {
-          "shim": "openrouter--openai_chat",
+          "shim": "openrouter--chat_completions",
           "api_key": "${OPENROUTER_API_KEY}"
         }
       }
@@ -55,7 +55,7 @@ OpenRouter is supported through two shim endpoints, allowing access to its unifi
     {
       "providers": {
         "openrouter-anthropic": {
-          "shim": "openrouter--anthropic",
+          "shim": "openrouter--messages",
           "api_key": "${OPENROUTER_API_KEY}"
         }
       }

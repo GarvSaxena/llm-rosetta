@@ -12,7 +12,7 @@ LLM-Rosetta can automatically detect which provider format a request uses.
 from llm_rosetta import detect_provider
 
 provider = detect_provider(request_dict)
-# Returns: "openai_chat", "openai_responses", "anthropic", "google", "google_interactions", or None
+# Returns: "chat_completions", "open_responses", "messages", "google_generate", "google_interactions", or None
 ```
 
 ## Getting a Converter
@@ -20,7 +20,7 @@ provider = detect_provider(request_dict)
 ```python
 from llm_rosetta import get_converter_for_provider
 
-converter = get_converter_for_provider("anthropic")
+converter = get_converter_for_provider("messages")
 ```
 
 ## Convenience Conversion
@@ -31,7 +31,7 @@ from llm_rosetta import convert
 # Auto-detect source, convert to target
 result = convert(
     source_body=openai_request,
-    target_provider="anthropic",
+    target_provider="messages",
     source_provider=None,  # auto-detect
 )
 ```
@@ -44,7 +44,7 @@ By default, `convert()` returns the body as-is when the source and target provid
 # Normalize OpenAI Chat parameters (e.g. max_tokens → max_completion_tokens)
 result = convert(
     source_body=openai_request,
-    target_provider="openai_chat",
+    target_provider="chat_completions",
     force_conversion=True,
 )
 ```

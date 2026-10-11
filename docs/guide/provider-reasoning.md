@@ -99,7 +99,7 @@ Probed 2026-05-23 ([#220](https://github.com/Oaklight/llm-rosetta/issues/220#iss
 | **opus47** | ❌ type not accepted | ❌ type not accepted | ✅ | **`adaptive` only** |
 
 !!! info "opus47 shim override"
-    The `argo--anthropic` shim declares `thinking_type: enabled` at the provider level, with a `model_overrides` entry for `claudeopus47: thinking_type: adaptive`. See [PR #256](https://github.com/Oaklight/llm-rosetta/pull/256).
+    The `argo--messages` shim declares `thinking_type: enabled` at the provider level, with a `model_overrides` entry for `claudeopus47: thinking_type: adaptive`. See [PR #256](https://github.com/Oaklight/llm-rosetta/pull/256).
 
 ### Automatic Fallback
 
@@ -150,7 +150,7 @@ messages.9.content.0: Invalid `signature` in `thinking` block
 | `as_is` (default) | Forward unsigned reasoning blocks as-is. The target provider decides whether to accept or reject them. |
 | `preserve` | Remove unsigned reasoning blocks from outbound messages. The reasoning content is preserved in `provider_metadata.anthropic.unsigned_reasoning_blocks` on the IR part for downstream consumers. |
 
-Currently only `argo--anthropic` uses `preserve`. Direct Anthropic API calls use `as_is` because the official API handles unsigned blocks differently from Argo's proxy layer.
+Currently only `argo--messages` uses `preserve`. Direct Anthropic API calls use `as_is` because the official API handles unsigned blocks differently from Argo's proxy layer.
 
 When `preserve` filters all reasoning parts from an assistant message, the message is skipped entirely (with a warning) rather than sending an empty `content: []` array.
 
@@ -195,10 +195,10 @@ reasoning:
 
 | Provider | `disabled` | `effort_field` | `thinking_type` | `max_effort` | `unsigned_reasoning_blocks` |
 |---|---|---|---|---|---|
-| **openai** | `omit` | `reasoning_effort` | — | `high` | `as_is` |
-| **openai_responses** | `omit` | `reasoning.effort` | — | `high` | `as_is` |
-| **anthropic** | `thinking_disabled` | `output_config.effort` | — | — | `as_is` |
-| **google** | `thinking_budget_zero` | `none` | — | — | `as_is` |
+| **openai--chat_completions** | `omit` | `reasoning_effort` | — | `high` | `as_is` |
+| **open_responses** | `omit` | `reasoning.effort` | — | `high` | `as_is` |
+| **messages** | `thinking_disabled` | `output_config.effort` | — | — | `as_is` |
+| **google_generate** | `thinking_budget_zero` | `none` | — | — | `as_is` |
 | **deepseek** | `thinking_disabled` | `reasoning_effort` | — | — | `as_is` |
 | **volcengine** (Chat) | `thinking_disabled` | `reasoning_effort` | `enabled` | `high` | `as_is` |
 | **volcengine** (Responses) | `omit` | `reasoning.effort` | — | — | `as_is` |

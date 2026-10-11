@@ -8,20 +8,20 @@ Per-provider guides covering shim configuration, transforms, authentication, and
 
 | Provider | Shim | Base Type | Notes |
 |:---------|:-----|:----------|:------|
-| [OpenAI](openai.md) | `openai` | `openai_chat` | Chat Completions API |
-| [Anthropic](anthropic.md) | `anthropic` | `anthropic` | Messages API |
-| [Google](google.md) | `google` | `google_generate` | generateContent API |
-| [DeepSeek](deepseek.md) | `deepseek` | `openai_chat` | OpenAI-compatible |
-| [Moonshot](moonshot.md) | `moonshot` | `openai_chat` | OpenAI-compatible |
-| [Qwen](qwen.md) | `qwen` | `openai_chat` | OpenAI-compatible |
-| [xAI](xai.md) | `xai` | `openai_chat` | OpenAI-compatible |
-| [Zhipu](zhipu.md) | `zhipu` | `openai_chat` | OpenAI-compatible |
-| [Volcengine](volcengine.md) | `volcengine` | `openai_chat` | Field transforms |
-| [OpenRouter](openrouter.md) | `openrouter` | `openai_chat` | Multi-model router |
-| [MiniMax](minimax.md) | `minimax` | `openai_chat` | OpenAI-compatible |
-| [Argo](argo.md) | `argo-*` | `openai_chat` | Argonne internal gateway |
+| [OpenAI](openai.md) | `openai--chat_completions` | `chat_completions` | Chat Completions API |
+| [Anthropic](anthropic.md) | `anthropic--messages` | `messages` | Messages API |
+| [Google](google.md) | `google--google_generate` | `google_generate` | generateContent API |
+| [DeepSeek](deepseek.md) | `deepseek--chat_completions` | `chat_completions` | OpenAI-compatible |
+| [Moonshot](moonshot.md) | `moonshot` | `chat_completions` | OpenAI-compatible |
+| [Qwen](qwen.md) | `qwen` | `chat_completions` | OpenAI-compatible |
+| [xAI](xai.md) | `xai` | `chat_completions` | OpenAI-compatible |
+| [Zhipu](zhipu.md) | `zhipu` | `chat_completions` | OpenAI-compatible |
+| [Volcengine](volcengine.md) | `volcengine--chat_completions` | `chat_completions` | Field transforms |
+| [OpenRouter](openrouter.md) | `openrouter--chat_completions` | `chat_completions` | Multi-model router |
+| [MiniMax](minimax.md) | `minimax--chat_completions` | `chat_completions` | OpenAI-compatible |
+| [Argo](argo.md) | `argo--*` | `chat_completions` | Argonne internal gateway |
 | [AskSage](asksage.md) | `asksage--*` | multiple | Multi-format aggregator |
-| [ALCF](alcf.md) | `alcf--*` | `openai_chat` | Globus OAuth, token_command |
-| [Kilo](kilo.md) | `kilo--openai_chat` | `openai_chat` | Free pool, keyless |
+| [ALCF](alcf.md) | `alcf--*` | `chat_completions` | Globus OAuth, token_command |
+| [Kilo](kilo.md) | `kilo--chat_completions` | `chat_completions` | Free pool, keyless |
 
 For general shim concepts and custom shim registration, see [Provider Shims](../shims.md).

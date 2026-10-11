@@ -368,7 +368,7 @@ When providers are managed by your project (e.g. auto-discovered from an upstrea
 def build_providers(config):
     return {
         "my-openai": {
-            "type": "openai_chat",
+            "type": "chat_completions",
             "api_key": config.api_key,
             "base_url": config.openai_base_url,
             "readonly": True,  # prevents admin panel edits

@@ -14,14 +14,14 @@ Symbols you can rely on across minor versions. These are the recommended imports
 
 | Category | Symbols | Import from |
 |----------|---------|-------------|
-| Converters | `OpenAIChatConverter`, `AnthropicConverter`, `GoogleGenerateConverter`, `GoogleConverter`, `OpenAIResponsesConverter`, `OpenResponsesConverter`, `BaseConverter` | `llm_rosetta` |
+| Converters | `ChatCompletionsConverter`, `MessagesConverter`, `GoogleGenerateConverter`, `GoogleConverter`, `OpenAIResponsesConverter`, `OpenResponsesConverter`, `BaseConverter` | `llm_rosetta` |
 | Context | `ConversionContext`, `StreamContext` | `llm_rosetta` |
 | Convenience | `detect_provider`, `get_converter_for_provider`, `convert`, `ProviderType` | `llm_rosetta` |
 | Core IR types | `Message`, `IRRequest`, `IRResponse`, `ContentPart`, `TextPart`, `ToolCallPart`, stream events, etc. | `llm_rosetta.types.ir` |
 
 ```python
 # Recommended: stable imports
-from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 from llm_rosetta import ConversionContext
 from llm_rosetta.types.ir import Message, IRRequest, IRResponse, TextPart
 ```

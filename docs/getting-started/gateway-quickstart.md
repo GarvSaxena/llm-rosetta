@@ -29,9 +29,9 @@ Create a `config.jsonc` (JSON with comments):
 ```jsonc
 {
   "providers": {
-    "my-openai":    { "type": "openai_chat",      "api_key": "${OPENAI_API_KEY}",    "base_url": "https://api.openai.com/v1" },
-    "my-anthropic": { "type": "anthropic",         "api_key": "${ANTHROPIC_API_KEY}",  "base_url": "https://api.anthropic.com" },
-    "my-google":    { "type": "google",            "api_key": "${GOOGLE_API_KEY}",     "base_url": "https://generativelanguage.googleapis.com" }
+    "my-openai":    { "type": "chat_completions",      "api_key": "${OPENAI_API_KEY}",    "base_url": "https://api.openai.com/v1" },
+    "my-anthropic": { "type": "messages",         "api_key": "${ANTHROPIC_API_KEY}",  "base_url": "https://api.anthropic.com" },
+    "my-google":    { "type": "google_generate",            "api_key": "${GOOGLE_API_KEY}",     "base_url": "https://generativelanguage.googleapis.com" }
   },
   "models": {
     "gpt-4o": "my-openai",
@@ -46,7 +46,7 @@ Create a `config.jsonc` (JSON with comments):
 }
 ```
 
-Provider names are user-defined strings. The `type` field specifies the API standard (`openai_chat`, `openai_responses`, `anthropic`, `google`, `google_interactions`).
+Provider names are user-defined strings. The `type` field specifies the API standard (`chat_completions`, `open_responses`, `messages`, `google_generate`, `google_interactions`).
 
 ## 3. Start the gateway
 

@@ -20,9 +20,9 @@ Argo-proxy routes Claude models to the native Anthropic upstream and all other m
 
 | Client (API Format) | Claude Model | GPT Model | Gemini Model |
 |---------------------|:------------:|:---------:|:------------:|
-| **Claude Code** (Anthropic) | ✓ anthropic→IR→anthropic | ✓ anthropic→IR→openai_chat | ✓ anthropic→IR→openai_chat |
-| **Codex CLI** (OpenAI Responses) | ✓ responses→IR→anthropic | ✓ responses→IR→openai_chat | ✓ responses→IR→openai_chat |
-| **Gemini CLI** (Google GenAI) | ✓ google→IR→anthropic | ✓ google→IR→openai_chat | ✓ google→IR→openai_chat |
+| **Claude Code** (Anthropic) | ✓ messages→IR→messages | ✓ messages→IR→chat_completions | ✓ messages→IR→chat_completions |
+| **Codex CLI** (OpenAI Responses) | ✓ responses→IR→messages | ✓ responses→IR→chat_completions | ✓ responses→IR→chat_completions |
+| **Gemini CLI** (Google GenAI) | ✓ google_generate→IR→messages | ✓ google_generate→IR→chat_completions | ✓ google_generate→IR→chat_completions |
 
 ### Image Understanding (9/9 ✓)
 

@@ -6,7 +6,7 @@ Zhipu (GLM / BigModel) is supported through the OpenAI Chat Completions compatib
 
 | Shim Name | Base Type | Default Base URL | API Key Env |
 |:---|:---|:---|:---|
-| `zhipu` | `openai_chat` | `https://open.bigmodel.cn/api/paas/v4` | `ZHIPU_API_KEY` |
+| `zhipu` | `chat_completions` | `https://open.bigmodel.cn/api/paas/v4` | `ZHIPU_API_KEY` |
 
 ## Transforms
 

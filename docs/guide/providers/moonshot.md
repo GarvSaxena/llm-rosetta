@@ -6,7 +6,7 @@ Moonshot (Kimi) is supported through the OpenAI Chat Completions compatible API.
 
 | Shim Name | Base Type | Default Base URL | API Key Env |
 |:---|:---|:---|:---|
-| `moonshot` | `openai_chat` | `https://api.moonshot.cn/v1` | `MOONSHOT_API_KEY` |
+| `moonshot` | `chat_completions` | `https://api.moonshot.cn/v1` | `MOONSHOT_API_KEY` |
 
 ## Transforms
 

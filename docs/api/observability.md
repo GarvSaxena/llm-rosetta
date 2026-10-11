@@ -39,8 +39,8 @@ no framework dependencies.  Designed for single-threaded asyncio event loops
 metrics = MetricsCollector()
 metrics.record_request(
     model="gpt-4o",
-    source="openai_chat",
-    target="anthropic",
+    source="chat_completions",
+    target="messages",
     status_code=200,
     duration_ms=150.0,
     is_stream=False,
@@ -70,8 +70,8 @@ Frozen dataclass representing a single logged proxy request.
 ```python
 entry = RequestLogEntry.create(
     model="gpt-4o",
-    source_provider="openai_chat",
-    target_provider="anthropic",
+    source_provider="chat_completions",
+    target_provider="messages",
     is_stream=False,
     status_code=200,
     duration_ms=123.4,
@@ -330,8 +330,8 @@ dump_id = dump_error(
     response_text="Internal Server Error",
     converted_body=converted,
     model="gpt-4o",
-    source_provider="openai_chat",
-    target_provider="anthropic",
+    source_provider="chat_completions",
+    target_provider="messages",
     provider_name="My Anthropic",
     status_code=500,
     error_phase="upstream",
@@ -349,8 +349,8 @@ dump_id = dump_error(
 | `response_text` | `str \| None` | Upstream error response text (truncated to 64 KB) |
 | `converted_body` | `dict \| None` | Converted target-format body, if available |
 | `model` | `str \| None` | Model name from the request |
-| `source_provider` | `str \| None` | Source API format (e.g. `"openai_chat"`) |
-| `target_provider` | `str \| None` | Target API format (e.g. `"anthropic"`) |
+| `source_provider` | `str \| None` | Source API format (e.g. `"chat_completions"`) |
+| `target_provider` | `str \| None` | Target API format (e.g. `"messages"`) |
 | `provider_name` | `str \| None` | Human-readable provider name |
 | `status_code` | `int \| None` | Upstream HTTP status code |
 | `error_phase` | `str \| None` | One of `"upstream"`, `"stream_header"`, `"stream_chunk"`, `"conversion"` |

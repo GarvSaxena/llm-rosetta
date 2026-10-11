@@ -14,10 +14,10 @@ LLM-Rosetta introduces a central **Intermediate Representation (IR)** as the hub
 
 ```mermaid
 graph LR
-    A["OpenAI Chat<br/><small>openai_chat</small>"] <--> IR["IR<br/><small>Hub</small>"]
-    B["OpenAI Responses<br/><small>openai_responses</small>"] <--> IR
-    C["Anthropic<br/><small>anthropic</small>"] <--> IR
-    D["Google GenAI<br/><small>google</small>"] <--> IR
+    A["OpenAI Chat<br/><small>chat_completions</small>"] <--> IR["IR<br/><small>Hub</small>"]
+    B["OpenAI Responses<br/><small>open_responses</small>"] <--> IR
+    C["Anthropic<br/><small>messages</small>"] <--> IR
+    D["Google GenAI<br/><small>google_generate</small>"] <--> IR
     E["Google Interactions<br/><small>google_interactions</small>"] <--> IR
 
     style IR fill:#f9a825,stroke:#f57f17,color:#000
@@ -25,7 +25,7 @@ graph LR
 
 ## Converter Architecture
 
-Each converter (e.g., `OpenAIChatConverter`) is composed of four specialized operations classes:
+Each converter (e.g., `ChatCompletionsConverter`) is composed of four specialized operations classes:
 
 | Component | Responsibility |
 |-----------|---------------|

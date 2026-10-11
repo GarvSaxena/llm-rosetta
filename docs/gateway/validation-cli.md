@@ -130,12 +130,12 @@ Expected output (all should print `56`):
         claude -p "What is 7*8? Reply with just the number." \
         --model claude-sonnet-4-20250514
 
-    # Claude Code + GPT (anthropic → openai_chat)
+    # Claude Code + GPT (messages → chat_completions)
     ANTHROPIC_BASE_URL=http://127.0.0.1:44511 \
         claude -p "What is 7*8? Reply with just the number." \
         --model gpt-4.1-nano
 
-    # Claude Code + Gemini (anthropic → openai_chat)
+    # Claude Code + Gemini (messages → chat_completions)
     ANTHROPIC_BASE_URL=http://127.0.0.1:44511 \
         claude -p "What is 7*8? Reply with just the number." \
         --model gemini-2.5-flash
@@ -144,7 +144,7 @@ Expected output (all should print `56`):
 ??? example "Codex CLI"
 
     ```bash
-    # Codex + Claude (openai_responses → anthropic)
+    # Codex + Claude (open_responses → messages)
     ARGO_API_KEY=your_key codex exec \
         "What is 7*8? Reply with just the number." \
         -m argo:claude-sonnet-4-20250514
@@ -163,17 +163,17 @@ Expected output (all should print `56`):
 ??? example "Gemini CLI"
 
     ```bash
-    # Gemini CLI + Claude (google → anthropic)
+    # Gemini CLI + Claude (google_generate → messages)
     GEMINI_API_KEY=your_key GOOGLE_GEMINI_BASE_URL=http://localhost:44511 \
         gemini -m claude-sonnet-4-20250514 \
         -p "What is 7*8? Reply with just the number."
 
-    # Gemini CLI + GPT (google → openai_chat)
+    # Gemini CLI + GPT (google_generate → chat_completions)
     GEMINI_API_KEY=your_key GOOGLE_GEMINI_BASE_URL=http://localhost:44511 \
         gemini -m gpt-4.1-nano \
         -p "What is 7*8? Reply with just the number."
 
-    # Gemini CLI + Gemini (google → openai_chat)
+    # Gemini CLI + Gemini (google_generate → chat_completions)
     GEMINI_API_KEY=your_key GOOGLE_GEMINI_BASE_URL=http://localhost:44511 \
         gemini -m gemini-2.5-flash \
         -p "What is 7*8? Reply with just the number."
@@ -266,6 +266,6 @@ rm test_image.png
 
 | Client Format | Claude Model Target | GPT/Gemini Model Target |
 |--------------|-------------------|------------------------|
-| Anthropic Messages | passthrough | anthropic → IR → openai_chat |
-| OpenAI Responses | responses → IR → anthropic | passthrough (responses → openai_chat at upstream) |
-| Google GenAI | google → IR → anthropic | google → IR → openai_chat |
+| Anthropic Messages | passthrough | messages → IR → chat_completions |
+| OpenAI Responses | responses → IR → messages | passthrough (responses → chat_completions at upstream) |
+| Google GenAI | google_generate → IR → messages | google_generate → IR → chat_completions |

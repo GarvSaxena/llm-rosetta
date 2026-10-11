@@ -35,11 +35,11 @@ tools = [
 ## Cross-Provider Tool Calling
 
 ```python
-from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 from llm_rosetta.types.ir import extract_tool_calls, create_tool_result_message
 
-openai_conv = OpenAIChatConverter()
-anthropic_conv = AnthropicConverter()
+openai_conv = ChatCompletionsConverter()
+anthropic_conv = MessagesConverter()
 
 # IR request with tools
 ir_request = {

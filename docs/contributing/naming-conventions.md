@@ -87,7 +87,7 @@ full word `provider` (never abbreviated `_from_p`).
 ## Rule 3: Domain abbreviations
 
 - Internal functions always use `ir` and `p` — never `provider`,
-  `responses`, `anthropic`, or other long forms.
+  `responses`, `messages`, or other long forms.
 - Public API methods use the full word `provider`.
 
 ## Summary

@@ -6,14 +6,14 @@ OpenAI is supported through two shim endpoints covering both the Chat Completion
 
 | Shim Name | Base Type | Default Base URL | API Key Env |
 |:---|:---|:---|:---|
-| `openai` | `openai_chat` | `https://api.openai.com/v1` | `OPENAI_API_KEY` |
-| `openai_responses` | `openai_responses` | `https://api.openai.com/v1` | `OPENAI_API_KEY` |
+| `openai--chat_completions` | `chat_completions` | `https://api.openai.com/v1` | `OPENAI_API_KEY` |
+| `openai--open_responses` | `open_responses` | `https://api.openai.com/v1` | `OPENAI_API_KEY` |
 
 ## Reasoning Support
 
 Both endpoints support reasoning/thinking with slightly different field names matching their respective API standards.
 
-**Chat Completions (`openai`):**
+**Chat Completions (`openai--chat_completions`):**
 
 | Field | Value |
 |:---|:---|
@@ -21,7 +21,7 @@ Both endpoints support reasoning/thinking with slightly different field names ma
 | Effort range | `minimal` → `high` |
 | Visibility modes | `auto`, `concise`, `detailed` |
 
-**Responses API (`openai_responses`):**
+**Responses API (`openai--open_responses`):**
 
 | Field | Value |
 |:---|:---|
@@ -31,7 +31,7 @@ Both endpoints support reasoning/thinking with slightly different field names ma
 
 ## Capability Flags
 
-| Flag | `openai` | `openai_responses` |
+| Flag | `openai--chat_completions` | `openai--open_responses` |
 |:---|:---:|:---:|
 | Custom tools | ✅ | ✅ |
 | Max tool description | 1024 chars | — |
@@ -49,7 +49,7 @@ Both endpoints apply `hoist_late_system_messages()` to consolidate any late syst
     {
       "providers": {
         "openai": {
-          "shim": "openai",
+          "shim": "openai--chat_completions",
           "api_key": "${OPENAI_API_KEY}"
         }
       }
@@ -62,7 +62,7 @@ Both endpoints apply `hoist_late_system_messages()` to consolidate any late syst
     {
       "providers": {
         "openai-responses": {
-          "shim": "openai_responses",
+          "shim": "openai--open_responses",
           "api_key": "${OPENAI_API_KEY}"
         }
       }
@@ -71,5 +71,5 @@ Both endpoints apply `hoist_late_system_messages()` to consolidate any late syst
 
 ## Notes
 
-- The `openai` shim uses the Chat Completions format (`/v1/chat/completions`), while `openai_responses` uses the Responses format (`/v1/responses`). Choose based on which downstream client format you need.
+- The `openai--chat_completions` shim uses the Chat Completions format (`/v1/chat/completions`), while `openai--open_responses` uses the Responses format (`/v1/responses`). Choose based on which downstream client format you need.
 - Response ID prefixes differ: `chatcmpl-` for Chat Completions, `resp_` for Responses API.

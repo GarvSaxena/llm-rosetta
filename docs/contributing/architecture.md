@@ -69,7 +69,7 @@ LLM-Rosetta separates portable IR data, durable provider passthrough data, and p
 
 `ProviderPassthroughEvent` carries provider-native streaming chunks. `ProviderPassthroughItem` carries non-stream request/history items, while `IRResponse.provider_passthrough_items` stores independent non-stream output items together with their original positions.
 
-Passthrough data is tagged with a converter dialect such as `openai_responses` or `anthropic`. A matching target dialect restores a copied native payload. A different target format drops the item; semantic items produce a conversion warning, while lifecycle/heartbeat stream events are dropped silently to avoid warning floods.
+Passthrough data is tagged with a converter dialect such as `open_responses` or `messages`. A matching target dialect restores a copied native payload. A different target format drops the item; semantic items produce a conversion warning, while lifecycle/heartbeat stream events are dropped silently to avoid warning floods.
 
 `ConversionContext` remains necessary because it serves a different role. It is an ephemeral side channel for a single request/response pipeline and is not serialized into conversation history. Provider passthrough carriers are durable IR data that can survive caching, persistence, and a later HTTP request.
 

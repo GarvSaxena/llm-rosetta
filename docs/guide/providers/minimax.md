@@ -6,19 +6,19 @@ MiniMax is supported through two shim endpoints covering both OpenAI Chat Comple
 
 | Shim Name | Base Type | Default Base URL | API Key Env |
 |:---|:---|:---|:---|
-| `minimax--openai_chat` | `openai_chat` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` |
-| `minimax--anthropic` | `anthropic` | `https://api.minimaxi.com/anthropic` | `MINIMAX_API_KEY` |
+| `minimax--chat_completions` | `chat_completions` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` |
+| `minimax--messages` | `messages` | `https://api.minimaxi.com/anthropic` | `MINIMAX_API_KEY` |
 
 ## Reasoning Support
 
-**Chat Completions (`minimax--openai_chat`):**
+**Chat Completions (`minimax--chat_completions`):**
 
 | Field | Value |
 |:---|:---|
 | Effort range | `low` → `high` |
 | Thinking modes | `auto` → `adaptive`, `enabled`, `disabled` |
 
-**Anthropic (`minimax--anthropic`):**
+**Anthropic (`minimax--messages`):**
 
 | Field | Value |
 |:---|:---|
@@ -30,10 +30,10 @@ MiniMax is supported through two shim endpoints covering both OpenAI Chat Comple
 
 | Shim | Type | Transform | Purpose |
 |:---|:---|:---|:---|
-| `minimax--openai_chat` | Pre-IR | `parse_think_tags()` | Parses `<think>...</think>` tags in responses into structured `reasoning_content` |
-| `minimax--openai_chat` | Post-IR | `strip_fields("logprobs", "top_logprobs", "seed", "stop")` | Removes unsupported request fields |
-| `minimax--openai_chat` | Post-IR | `inject_reasoning_split()` | Sets `reasoning_split: true` when thinking is present in the request |
-| `minimax--anthropic` | IR | `auto_cache_breakpoints()` | Inserts cache breakpoints for prompt caching |
+| `minimax--chat_completions` | Pre-IR | `parse_think_tags()` | Parses `<think>...</think>` tags in responses into structured `reasoning_content` |
+| `minimax--chat_completions` | Post-IR | `strip_fields("logprobs", "top_logprobs", "seed", "stop")` | Removes unsupported request fields |
+| `minimax--chat_completions` | Post-IR | `inject_reasoning_split()` | Sets `reasoning_split: true` when thinking is present in the request |
+| `minimax--messages` | IR | `auto_cache_breakpoints()` | Inserts cache breakpoints for prompt caching |
 | Both | IR | `hoist_late_system_messages()` | Moves late system messages to conversation start |
 
 ## Gateway Configuration
@@ -44,7 +44,7 @@ MiniMax is supported through two shim endpoints covering both OpenAI Chat Comple
     {
       "providers": {
         "minimax": {
-          "shim": "minimax--openai_chat",
+          "shim": "minimax--chat_completions",
           "api_key": "${MINIMAX_API_KEY}"
         }
       }
@@ -57,7 +57,7 @@ MiniMax is supported through two shim endpoints covering both OpenAI Chat Comple
     {
       "providers": {
         "minimax-anthropic": {
-          "shim": "minimax--anthropic",
+          "shim": "minimax--messages",
           "api_key": "${MINIMAX_API_KEY}"
         }
       }

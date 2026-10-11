@@ -6,9 +6,9 @@ ALCF (Argonne Leadership Computing Facility) Inference Service is supported thro
 
 | Shim Name | Base Type | Default Base URL | API Key Env | Hardware |
 |:---|:---|:---|:---|:---|
-| `alcf--metis` | `openai_chat` | `https://inference-api.alcf.anl.gov/resource_server/metis/api/v1` | `ALCF_API_KEY` | SambaNova SN40L |
-| `alcf--minerva` | `openai_chat` | `https://inference-api.alcf.anl.gov/resource_server/minerva/api/v1` | `ALCF_API_KEY` | NVIDIA B200 |
-| `alcf--sophia` | `openai_chat` | `https://inference-api.alcf.anl.gov/resource_server/sophia/vllm/v1` | `ALCF_API_KEY` | vLLM on A100 |
+| `alcf--metis` | `chat_completions` | `https://inference-api.alcf.anl.gov/resource_server/metis/api/v1` | `ALCF_API_KEY` | SambaNova SN40L |
+| `alcf--minerva` | `chat_completions` | `https://inference-api.alcf.anl.gov/resource_server/minerva/api/v1` | `ALCF_API_KEY` | NVIDIA B200 |
+| `alcf--sophia` | `chat_completions` | `https://inference-api.alcf.anl.gov/resource_server/sophia/vllm/v1` | `ALCF_API_KEY` | vLLM on A100 |
 
 ## Reasoning Support
 

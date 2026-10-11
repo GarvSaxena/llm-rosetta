@@ -10,14 +10,14 @@ LLM-Rosetta supports 6 API standards across 4 LLM providers. Each standard defin
 
 | ProviderType | API Standard | Endpoint | Converter Class |
 |---|---|---|---|
-| `openai_chat` | OpenAI Chat Completions | `POST /v1/chat/completions` | `OpenAIChatConverter` |
-| `openai_responses` | OpenAI Responses | `POST /v1/responses` | `OpenAIResponsesConverter` |
+| `chat_completions` | OpenAI Chat Completions | `POST /v1/chat/completions` | `ChatCompletionsConverter` |
+| `openai--open_responses` | OpenAI Responses | `POST /v1/responses` | `OpenAIResponsesConverter` |
 | `open_responses` | Open Responses | `POST /v1/responses` | `OpenResponsesConverter` |
-| `anthropic` | Anthropic Messages | `POST /v1/messages` | `AnthropicConverter` |
-| `google` | Google GenAI | `POST /v1beta/models/{model}:generateContent` | `GoogleConverter` |
+| `messages` | Anthropic Messages | `POST /v1/messages` | `MessagesConverter` |
+| `google_generate` | Google GenAI | `POST /v1beta/models/{model}:generateContent` | `GoogleGenerateConverter` |
 | `google_interactions` | Google Interactions | `POST /v1beta/interactions` | `GoogleInteractionsConverter` |
 
-## OpenAI Chat Completions (`openai_chat`)
+## OpenAI Chat Completions (`chat_completions`)
 
 The most widely adopted LLM API standard. Uses a role-based message array and returns responses in a `choices[]` array.
 
@@ -59,7 +59,7 @@ The most widely adopted LLM API standard. Uses a role-based message array and re
 - `top_k` is **not supported**
 - Streaming via `"stream": true` with SSE `data: {...}` chunks
 
-## OpenAI Responses (`openai_responses`)
+## OpenAI Responses (`openai--open_responses`)
 
 OpenAI's newer API format (2025). Uses a flat list of typed items instead of nested messages, and supports stateful server-side conversations.
 
@@ -127,7 +127,7 @@ The spec is the base and the OpenAI Responses API is a conforming profile: `Open
 
 **Adopters:** OpenRouter, Hugging Face, Vercel, LM Studio, Ollama, vLLM.
 
-## Anthropic Messages (`anthropic`)
+## Anthropic Messages (`messages`)
 
 Anthropic's native API for Claude models. Notable for requiring `max_tokens` and supporting `top_k` and extended thinking.
 
@@ -169,7 +169,7 @@ Anthropic's native API for Claude models. Notable for requiring `max_tokens` and
 - Extended thinking: `"thinking": {"type": "enabled", "budget_tokens": 10000}`
 - Auth via `x-api-key` header (not `Authorization: Bearer`)
 
-## Google GenAI (`google`)
+## Google GenAI (`google_generate`)
 
 Google's Generative AI API for Gemini models. Uses `contents[]` instead of `messages[]` and `parts[]` instead of `content`.
 
@@ -245,9 +245,9 @@ Each API standard has a corresponding [converter](converters.md) that translates
 
 ```jsonc
 "providers": {
-  "my-openai":    { "type": "openai_chat",      "api_key": "...", "base_url": "..." },
-  "my-anthropic": { "type": "anthropic",         "api_key": "...", "base_url": "..." },
-  "my-google":    { "type": "google",            "api_key": "...", "base_url": "..." }
+  "my-openai":    { "type": "chat_completions",      "api_key": "...", "base_url": "..." },
+  "my-anthropic": { "type": "messages",         "api_key": "...", "base_url": "..." },
+  "my-google":    { "type": "google_generate",            "api_key": "...", "base_url": "..." }
 }
 ```
 

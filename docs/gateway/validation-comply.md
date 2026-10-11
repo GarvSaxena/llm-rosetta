@@ -14,7 +14,7 @@ title: Compliance Testing
 |--------|------|:-----:|
 | OpenAI Chat Completions | `openai-chat` | 8 |
 | Open Responses | `open-responses` | 12 |
-| Anthropic Messages | `anthropic` | 8 |
+| Anthropic Messages | `messages` | 8 |
 | Google GenAI | `google-genai` | 9 |
 
 ## Installation
@@ -68,7 +68,7 @@ llm-comply --format google-genai \
 -u, --base-url URL     API base URL (required)
 -k, --api-key KEY      API key
 -m, --model MODEL      Model name (default: gpt-4o-mini)
---format FORMAT        API format: open-responses, openai-chat, anthropic, google-genai
+--format FORMAT        API format: open_responses, chat_completions, messages, google_generate
 -f, --filter IDS       Comma-separated test IDs to run
 -i, --ignore PATTERNS  Ignore errors matching substrings
 -H, --header K:V       Extra headers

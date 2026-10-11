@@ -6,22 +6,22 @@ Argo is Argonne National Laboratory's internal API gateway, providing access to 
 
 | Shim Name | Base Type | Default Base URL | API Key Env |
 |:---|:---|:---|:---|
-| `argo--openai_chat` | `openai_chat` | `https://apps.inside.anl.gov/argoapi/v1` | `ARGO_API_KEY` |
-| `argo--anthropic` | `anthropic` | `https://apps.inside.anl.gov/argoapi` | `ARGO_API_KEY` |
+| `argo--chat_completions` | `chat_completions` | `https://apps.inside.anl.gov/argoapi/v1` | `ARGO_API_KEY` |
+| `argo--messages` | `messages` | `https://apps.inside.anl.gov/argoapi` | `ARGO_API_KEY` |
 
 !!! info "Model ID Field"
     Both Argo shims use `model_id_field: internal_id`, meaning the model identifier is sent as `internal_id` in the request body rather than the standard `model` field.
 
 ## Reasoning Support
 
-**Chat Completions (`argo--openai_chat`):**
+**Chat Completions (`argo--chat_completions`):**
 
 | Field | Value |
 |:---|:---|
 | Effort field | `reasoning_effort` |
 | Effort range | Full IR ladder (`minimal` → `max`) |
 
-**Anthropic (`argo--anthropic`):**
+**Anthropic (`argo--messages`):**
 
 | Field | Value |
 |:---|:---|
@@ -51,14 +51,14 @@ Argo is Argonne National Laboratory's internal API gateway, providing access to 
 
 ## Capability Flags
 
-| Flag | `argo--openai_chat` | `argo--anthropic` |
+| Flag | `argo--chat_completions` | `argo--messages` |
 |:---|:---:|:---:|
 | Custom tools | ✅ | — |
 | Max tool description | 1024 chars | — |
 
 ## Transforms
 
-**`argo--openai_chat`:**
+**`argo--chat_completions`:**
 
 | Type | Transform | Purpose |
 |:---|:---|:---|
@@ -71,7 +71,7 @@ Argo is Argonne National Laboratory's internal API gateway, providing access to 
 | IR | `truncate_images(50)` (gpt/o\*) | Limits images to 50 per request for GPT/o-series |
 | IR | `unwind_parallel_tool_calls()` (gemini\*) | Serializes parallel tool calls for Gemini models |
 
-**`argo--anthropic`:**
+**`argo--messages`:**
 
 | Type | Transform | Purpose |
 |:---|:---|:---|
@@ -87,7 +87,7 @@ Argo is Argonne National Laboratory's internal API gateway, providing access to 
     {
       "providers": {
         "argo": {
-          "shim": "argo--openai_chat",
+          "shim": "argo--chat_completions",
           "api_key": "${ARGO_API_KEY}"
         }
       }
@@ -100,7 +100,7 @@ Argo is Argonne National Laboratory's internal API gateway, providing access to 
     {
       "providers": {
         "argo-anthropic": {
-          "shim": "argo--anthropic",
+          "shim": "argo--messages",
           "api_key": "${ARGO_API_KEY}"
         }
       }

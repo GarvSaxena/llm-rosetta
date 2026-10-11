@@ -39,7 +39,7 @@ llm-rosetta-gateway init
 Add a provider entry to the config file:
 
 ```bash
-llm-rosetta-gateway add provider openai_chat
+llm-rosetta-gateway add provider chat_completions
 llm-rosetta-gateway add provider anthropic --api-key "${ANTHROPIC_API_KEY}"
 ```
 

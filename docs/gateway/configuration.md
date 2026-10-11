@@ -15,15 +15,15 @@ Each provider entry requires an `api_key`, `base_url`, and optionally a `type` s
 
 ```jsonc
 "providers": {
-  "my-openai":   { "type": "openai_chat",      "api_key": "sk-...",     "base_url": "https://api.openai.com/v1" },
-  "my-anthropic": { "type": "anthropic",        "api_key": "sk-ant-...", "base_url": "https://api.anthropic.com" },
-  "my-google":   { "type": "google",            "api_key": "AIza...",    "base_url": "https://generativelanguage.googleapis.com" }
+  "my-openai":   { "type": "chat_completions",      "api_key": "sk-...",     "base_url": "https://api.openai.com/v1" },
+  "my-anthropic": { "type": "messages",        "api_key": "sk-ant-...", "base_url": "https://api.anthropic.com" },
+  "my-google":   { "type": "google_generate",            "api_key": "AIza...",    "base_url": "https://generativelanguage.googleapis.com" }
 }
 ```
 
 Provider names are user-defined strings (e.g. `"my-openai"`, `"prod-claude"`). The `type` field specifies which API standard to use.
 
-Available types: `openai_chat`, `openai_responses`, `anthropic`, `google`, `google_interactions`.
+Available types: `chat_completions`, `open_responses`, `messages`, `google_generate`, `google_interactions`.
 
 ### Using Shims
 
@@ -31,18 +31,18 @@ Instead of `type`, you can use a `shim` field to reference a registered provider
 
 ```jsonc
 "providers": {
-  "my-deepseek":   { "shim": "deepseek",   "api_key": "${DEEPSEEK_API_KEY}" },
-  "my-volcengine": { "shim": "volcengine",  "api_key": "${VOLCENGINE_API_KEY}", "base_url": "https://ark.cn-beijing.volces.com/api/v3" }
+  "my-deepseek":   { "shim": "deepseek--chat_completions",   "api_key": "${DEEPSEEK_API_KEY}" },
+  "my-volcengine": { "shim": "volcengine--chat_completions",  "api_key": "${VOLCENGINE_API_KEY}", "base_url": "https://ark.cn-beijing.volces.com/api/v3" }
 }
 ```
 
 When `shim` is specified:
 
-- The **base type** is resolved automatically (e.g. `deepseek` → `openai_chat`)
+- The **base type** is resolved automatically (e.g. `deepseek--chat_completions` → `chat_completions`)
 - **Default `base_url`** and **`api_key` env var** are populated from the shim if not set in config
 - **Field-level transforms** are applied during request/response conversion (e.g. Volcengine's shim strips `logprobs` and `top_logprobs` fields that its API does not support)
 
-Built-in shims: `openai`, `openai_responses`, `anthropic`, `google`, `deepseek`, `volcengine`.
+Built-in shims: `openai--chat_completions`, `openai--open_responses`, `anthropic--messages`, `google--google_generate`, `deepseek--chat_completions`, `volcengine--chat_completions`.
 
 You can also register custom shims programmatically via `register_shim()`.
 
@@ -70,14 +70,14 @@ You can declare equivalent limits in a custom shim registered via `register_shim
     The provider type resolution order is: `shim` → `type` → provider name (fallback).
 
 !!! note "Backward compatibility"
-    If both `shim` and `type` are omitted, the provider name itself is used as the type. This means configs using the old format (where provider names were `openai_chat`, `anthropic`, etc.) continue to work without changes.
+    If both `shim` and `type` are omitted, the provider name itself is used as the type. Legacy spellings anywhere in `shim` / `type` (e.g. `openai_chat`, `openai_responses`, `anthropic`, `google`, …) are rewritten to canonical names once at startup, idempotently, with a `.pre-migration.bak` backup, so an old config keeps working. A name the migration cannot map is rejected with an error pointing at the docs.
 
 ### Enabling / Disabling Providers
 
 Each provider supports an `enabled` field (default `true`). Disabled providers and their associated models are silently excluded from routing:
 
 ```jsonc
-"my-openai": { "type": "openai_chat", "api_key": "sk-...", "base_url": "https://api.openai.com/v1", "enabled": false }
+"my-openai": { "type": "chat_completions", "api_key": "sk-...", "base_url": "https://api.openai.com/v1", "enabled": false }
 ```
 
 This is useful for temporarily taking a provider offline without deleting its configuration. The [admin panel](admin-panel.md) provides toggle switches for this.
@@ -87,7 +87,7 @@ This is useful for temporarily taking a provider offline without deleting its co
 Each provider supports multiple API keys via comma-separated values. The gateway rotates through them in round-robin order:
 
 ```jsonc
-"my-openai": { "type": "openai_chat", "api_key": "sk-key1,sk-key2,sk-key3", "base_url": "https://api.openai.com/v1" }
+"my-openai": { "type": "chat_completions", "api_key": "sk-key1,sk-key2,sk-key3", "base_url": "https://api.openai.com/v1" }
 ```
 
 ### Environment Variable Substitution
@@ -95,7 +95,7 @@ Each provider supports multiple API keys via comma-separated values. The gateway
 API keys support `${ENV_VAR}` syntax — values are read from environment variables at startup:
 
 ```jsonc
-"my-openai": { "type": "openai_chat", "api_key": "${OPENAI_API_KEY}", "base_url": "https://api.openai.com/v1" }
+"my-openai": { "type": "chat_completions", "api_key": "${OPENAI_API_KEY}", "base_url": "https://api.openai.com/v1" }
 ```
 
 ### Dynamic Token Refresh (`token_command`)
@@ -150,7 +150,7 @@ The container's `appuser` (uid 1000) needs read-write access to `~/.globus` so t
 Individual providers can use a specific proxy:
 
 ```jsonc
-"my-anthropic": { "type": "anthropic", "api_key": "sk-ant-...", "base_url": "https://api.anthropic.com", "proxy": "http://proxy:8080" }
+"my-anthropic": { "type": "messages", "api_key": "sk-ant-...", "base_url": "https://api.anthropic.com", "proxy": "http://proxy:8080" }
 ```
 
 ## Proxy Configuration
@@ -572,13 +572,13 @@ The gateway can proxy `/v1/decision` and `/v1/systemone` requests for probabilis
 ```jsonc
 {
   "providers": {
-    "openai-prod":    { "type": "openai_chat",      "api_key": "${OPENAI_API_KEY}",    "base_url": "https://api.openai.com/v1" },
-    "openai-resp":    { "type": "openai_responses",  "api_key": "${OPENAI_API_KEY}",    "base_url": "https://api.openai.com/v1" },
-    "anthropic-prod": { "type": "anthropic",         "api_key": "${ANTHROPIC_API_KEY}",  "base_url": "https://api.anthropic.com" },
-    "google-prod":    { "type": "google",            "api_key": "${GOOGLE_API_KEY}",     "base_url": "https://generativelanguage.googleapis.com" },
+    "openai-prod":    { "type": "chat_completions",      "api_key": "${OPENAI_API_KEY}",    "base_url": "https://api.openai.com/v1" },
+    "openai-resp":    { "type": "open_responses",  "api_key": "${OPENAI_API_KEY}",    "base_url": "https://api.openai.com/v1" },
+    "anthropic-prod": { "type": "messages",         "api_key": "${ANTHROPIC_API_KEY}",  "base_url": "https://api.anthropic.com" },
+    "google-prod":    { "type": "google_generate",            "api_key": "${GOOGLE_API_KEY}",     "base_url": "https://generativelanguage.googleapis.com" },
     // Shim-based providers — base_url and transforms resolved automatically
-    "deepseek":       { "shim": "deepseek",          "api_key": "${DEEPSEEK_API_KEY}" },
-    "volcengine":     { "shim": "volcengine",         "api_key": "${VOLCENGINE_API_KEY}", "base_url": "https://ark.cn-beijing.volces.com/api/v3" }
+    "deepseek":       { "shim": "deepseek--chat_completions",          "api_key": "${DEEPSEEK_API_KEY}" },
+    "volcengine":     { "shim": "volcengine--chat_completions",         "api_key": "${VOLCENGINE_API_KEY}", "base_url": "https://ark.cn-beijing.volces.com/api/v3" }
   },
   "models": {
     "gpt-4o":                     { "provider": "openai-prod",    "capabilities": ["text", "vision", "tools"] },
