@@ -23,5 +23,6 @@ Per-provider guides covering shim configuration, transforms, authentication, and
 | [AskSage](asksage.md) | `asksage--*` | multiple | Multi-format aggregator |
 | [ALCF](alcf.md) | `alcf--*` | `chat_completions` | Globus OAuth, token_command |
 | [Kilo](kilo.md) | `kilo--chat_completions` | `chat_completions` | Free pool, keyless |
+| [OpenCode](opencode.md) | `opencode--*` | multiple | Go subscription / Zen balance |
 
 For general shim concepts and custom shim registration, see [Provider Shims](../shims.md).
