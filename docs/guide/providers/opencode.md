@@ -21,7 +21,7 @@ provider entry.
 | Shim Name | Base Type | Default Base URL | Credentials |
 |:---|:---|:---|:---|
 | `opencode--chat_completions` | `chat_completions` | `https://opencode.ai/zen/go/v1` | `OPENCODE_API_KEY` |
-| `opencode--anthropic` | `anthropic` | `https://opencode.ai/zen/go/v1` | `OPENCODE_API_KEY` |
+| `opencode--messages` | `messages` | `https://opencode.ai/zen/go/v1` | `OPENCODE_API_KEY` |
 | `opencode--open_responses` | `open_responses` | `https://opencode.ai/zen/go/v1` | `OPENCODE_API_KEY` |
 
 Each resolves to its format's path under the base: `/chat/completions`,
