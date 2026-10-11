@@ -14,14 +14,14 @@ LLM-Rosetta 的公共 API 分三个稳定性层级。看完这页你会知道该
 
 | 类别 | 符号 | 导入路径 |
 |------|------|----------|
-| 转换器 | `OpenAIChatConverter`、`AnthropicConverter`、`GoogleGenerateConverter`、`GoogleConverter`、`OpenAIResponsesConverter`、`OpenResponsesConverter`、`BaseConverter` | `llm_rosetta` |
+| 转换器 | `ChatCompletionsConverter`、`MessagesConverter`、`GoogleGenerateConverter`、`GoogleConverter`、`OpenAIResponsesConverter`、`OpenResponsesConverter`、`BaseConverter` | `llm_rosetta` |
 | 上下文 | `ConversionContext`、`StreamContext` | `llm_rosetta` |
 | 便捷接口 | `detect_provider`、`get_converter_for_provider`、`convert`、`ProviderType` | `llm_rosetta` |
 | 核心 IR 类型 | `Message`、`IRRequest`、`IRResponse`、`ContentPart`、`TextPart`、`ToolCallPart`、流式事件等 | `llm_rosetta.types.ir` |
 
 ```python
 # 推荐：稳定导入
-from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 from llm_rosetta import ConversionContext
 from llm_rosetta.types.ir import Message, IRRequest, IRResponse, TextPart
 ```

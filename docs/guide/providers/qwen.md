@@ -6,7 +6,7 @@ Qwen（阿里云 / DashScope）通过兼容 OpenAI Chat Completions 的 API 提�
 
 | Shim 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 |
 |:---|:---|:---|:---|
-| `qwen` | `openai_chat` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `DASHSCOPE_API_KEY` |
+| `qwen` | `chat_completions` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `DASHSCOPE_API_KEY` |
 
 ## 转换规则
 

@@ -248,7 +248,7 @@ title: CLI 工具集成
 
 ```jsonc
 "providers": {
-  "local-ollama": { "type": "openai_chat", "api_key": "ollama", "base_url": "http://localhost:11434/v1" }
+  "local-ollama": { "type": "chat_completions", "api_key": "ollama", "base_url": "http://localhost:11434/v1" }
 },
 "models": {
   "llama3.2": "local-ollama",
@@ -262,9 +262,9 @@ Ollama v0.13+ 支持网关提供的三种 API 格式：
 
 | Ollama 端点 | 网关路由 | 转换器 |
 |---|---|---|
-| `/v1/chat/completions` | 相同 | `openai_chat` |
-| `/v1/responses` | 相同 | `openai_responses` (v0.13.3+) |
-| `/v1/messages` | 相同 | `anthropic` (v0.14.0+) |
+| `/v1/chat/completions` | 相同 | `chat_completions` |
+| `/v1/responses` | 相同 | `open_responses` (v0.13.3+) |
+| `/v1/messages` | 相同 | `messages` (v0.14.0+) |
 
 ---
 

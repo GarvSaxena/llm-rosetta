@@ -31,13 +31,13 @@ title: Converters
 
 ::: llm_rosetta.converters.base.converter.BaseConverter
 
-::: llm_rosetta.converters.openai_chat.converter.OpenAIChatConverter
+::: llm_rosetta.converters.chat_completions.converter.ChatCompletionsConverter
 
-::: llm_rosetta.converters.openai_responses.converter.OpenResponsesConverter
+::: llm_rosetta.converters.open_responses.converter.OpenResponsesConverter
 
-::: llm_rosetta.converters.openai_responses.converter.OpenAIResponsesConverter
+::: llm_rosetta.converters.open_responses.converter.OpenAIResponsesConverter
 
-::: llm_rosetta.converters.anthropic.converter.AnthropicConverter
+::: llm_rosetta.converters.messages.converter.MessagesConverter
 
 ::: llm_rosetta.converters.google_generate.converter.GoogleGenerateConverter
 

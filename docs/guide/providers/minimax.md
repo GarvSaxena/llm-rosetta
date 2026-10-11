@@ -6,19 +6,19 @@ MiniMax 通过两个 shim 端点提供支持，分别覆盖 OpenAI Chat Completi
 
 | Shim 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 |
 |:---|:---|:---|:---|
-| `minimax--openai_chat` | `openai_chat` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` |
-| `minimax--anthropic` | `anthropic` | `https://api.minimaxi.com/anthropic` | `MINIMAX_API_KEY` |
+| `minimax--chat_completions` | `chat_completions` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` |
+| `minimax--messages` | `messages` | `https://api.minimaxi.com/anthropic` | `MINIMAX_API_KEY` |
 
 ## 推理支持
 
-**Chat Completions (`minimax--openai_chat`)：**
+**Chat Completions (`minimax--chat_completions`)：**
 
 | 字段 | 值 |
 |:---|:---|
 | Effort 范围 | `low` → `high` |
 | 思考模式 | `auto` → `adaptive`、`enabled`、`disabled` |
 
-**Anthropic (`minimax--anthropic`)：**
+**Anthropic (`minimax--messages`)：**
 
 | 字段 | 值 |
 |:---|:---|
@@ -30,10 +30,10 @@ MiniMax 通过两个 shim 端点提供支持，分别覆盖 OpenAI Chat Completi
 
 | Shim | 类型 | 转换 | 用途 |
 |:---|:---|:---|:---|
-| `minimax--openai_chat` | Pre-IR | `parse_think_tags()` | 将响应中的 `<think>...</think>` 标签解析为结构化的 `reasoning_content` |
-| `minimax--openai_chat` | Post-IR | `strip_fields("logprobs", "top_logprobs", "seed", "stop")` | 移除不支持的请求字段 |
-| `minimax--openai_chat` | Post-IR | `inject_reasoning_split()` | 当请求中包含思考配置时设置 `reasoning_split: true` |
-| `minimax--anthropic` | IR | `auto_cache_breakpoints()` | 插入缓存断点以支持 prompt 缓存 |
+| `minimax--chat_completions` | Pre-IR | `parse_think_tags()` | 将响应中的 `<think>...</think>` 标签解析为结构化的 `reasoning_content` |
+| `minimax--chat_completions` | Post-IR | `strip_fields("logprobs", "top_logprobs", "seed", "stop")` | 移除不支持的请求字段 |
+| `minimax--chat_completions` | Post-IR | `inject_reasoning_split()` | 当请求中包含思考配置时设置 `reasoning_split: true` |
+| `minimax--messages` | IR | `auto_cache_breakpoints()` | 插入缓存断点以支持 prompt 缓存 |
 | 两者 | IR | `hoist_late_system_messages()` | 将靠后的系统消息移至对话开头 |
 
 ## 网关配置
@@ -44,7 +44,7 @@ MiniMax 通过两个 shim 端点提供支持，分别覆盖 OpenAI Chat Completi
     {
       "providers": {
         "minimax": {
-          "shim": "minimax--openai_chat",
+          "shim": "minimax--chat_completions",
           "api_key": "${MINIMAX_API_KEY}"
         }
       }
@@ -57,7 +57,7 @@ MiniMax 通过两个 shim 端点提供支持，分别覆盖 OpenAI Chat Completi
     {
       "providers": {
         "minimax-anthropic": {
-          "shim": "minimax--anthropic",
+          "shim": "minimax--messages",
           "api_key": "${MINIMAX_API_KEY}"
         }
       }

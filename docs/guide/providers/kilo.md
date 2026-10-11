@@ -15,7 +15,7 @@ Kilo 的公共网关提供一个免费模型池。LLM-Rosetta 将其作为一个
 
 | Shim 名称 | 基础类型 | 默认 Base URL | 凭据 |
 |:---|:---|:---|:---|
-| `kilo--openai_chat` | `openai_chat` | `https://api.kilo.ai/api/gateway` | 无（keyless） |
+| `kilo--chat_completions` | `chat_completions` | `https://api.kilo.ai/api/gateway` | 无（keyless） |
 
 该 shim 声明了 `display_name: Kilo`、`free_source: true`、一个 logo，以及
 `connection.keyless: true`：
@@ -44,7 +44,7 @@ Kilo 的公共网关提供一个免费模型池。LLM-Rosetta 将其作为一个
 {
   "providers": {
     "kilo-free": {
-      "type": "kilo--openai_chat"
+      "type": "kilo--chat_completions"
       // 无需 api_key —— 免费池不需要凭据。
       // 填入 "api_key": "${KILO_API_KEY}" 可改用你自己的 Kilo 账号。
     }

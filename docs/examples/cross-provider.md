@@ -29,11 +29,11 @@ sequenceDiagram
 ## 示例：OpenAI ↔ Anthropic
 
 ```python
-from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 from llm_rosetta.types.ir import extract_text_content, IRRequest
 
-openai_conv = OpenAIChatConverter()
-anthropic_conv = AnthropicConverter()
+openai_conv = ChatCompletionsConverter()
+anthropic_conv = MessagesConverter()
 
 # 以 IR 格式维护历史
 ir_messages = []

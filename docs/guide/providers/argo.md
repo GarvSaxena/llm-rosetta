@@ -6,22 +6,22 @@ Argo 是美国阿贡国家实验室的内部 API 网关，通过统一端点提�
 
 | Shim 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 |
 |:---|:---|:---|:---|
-| `argo--openai_chat` | `openai_chat` | `https://apps.inside.anl.gov/argoapi/v1` | `ARGO_API_KEY` |
-| `argo--anthropic` | `anthropic` | `https://apps.inside.anl.gov/argoapi` | `ARGO_API_KEY` |
+| `argo--chat_completions` | `chat_completions` | `https://apps.inside.anl.gov/argoapi/v1` | `ARGO_API_KEY` |
+| `argo--messages` | `messages` | `https://apps.inside.anl.gov/argoapi` | `ARGO_API_KEY` |
 
 !!! info "模型 ID 字段"
     两个 Argo shim 均使用 `model_id_field: internal_id`，即模型标识符在请求体中以 `internal_id` 字段发送，而非标准的 `model` 字段。
 
 ## 推理支持
 
-**Chat Completions (`argo--openai_chat`)：**
+**Chat Completions (`argo--chat_completions`)：**
 
 | 字段 | 值 |
 |:---|:---|
 | Effort 字段 | `reasoning_effort` |
 | Effort 范围 | 完整 IR 阶梯（`minimal` → `max`） |
 
-**Anthropic (`argo--anthropic`)：**
+**Anthropic (`argo--messages`)：**
 
 | 字段 | 值 |
 |:---|:---|
@@ -51,14 +51,14 @@ Argo 是美国阿贡国家实验室的内部 API 网关，通过统一端点提�
 
 ## 能力标志
 
-| 标志 | `argo--openai_chat` | `argo--anthropic` |
+| 标志 | `argo--chat_completions` | `argo--messages` |
 |:---|:---:|:---:|
 | 自定义工具 | ✅ | — |
 | 最大工具描述长度 | 1024 字符 | — |
 
 ## 转换规则
 
-**`argo--openai_chat`：**
+**`argo--chat_completions`：**
 
 | 类型 | 转换 | 用途 |
 |:---|:---|:---|
@@ -71,7 +71,7 @@ Argo 是美国阿贡国家实验室的内部 API 网关，通过统一端点提�
 | IR | `truncate_images(50)`（gpt/o\*） | 限制 GPT/o 系列每次请求最多 50 张图片 |
 | IR | `unwind_parallel_tool_calls()`（gemini\*） | 为 Gemini 模型串行化并行工具调用 |
 
-**`argo--anthropic`：**
+**`argo--messages`：**
 
 | 类型 | 转换 | 用途 |
 |:---|:---|:---|
@@ -87,7 +87,7 @@ Argo 是美国阿贡国家实验室的内部 API 网关，通过统一端点提�
     {
       "providers": {
         "argo": {
-          "shim": "argo--openai_chat",
+          "shim": "argo--chat_completions",
           "api_key": "${ARGO_API_KEY}"
         }
       }
@@ -100,7 +100,7 @@ Argo 是美国阿贡国家实验室的内部 API 网关，通过统一端点提�
     {
       "providers": {
         "argo-anthropic": {
-          "shim": "argo--anthropic",
+          "shim": "argo--messages",
           "api_key": "${ARGO_API_KEY}"
         }
       }

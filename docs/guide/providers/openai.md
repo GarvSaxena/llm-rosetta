@@ -6,14 +6,14 @@ OpenAI 通过两个 shim 端点提供支持，分别覆盖 Chat Completions API 
 
 | Shim 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 |
 |:---|:---|:---|:---|
-| `openai` | `openai_chat` | `https://api.openai.com/v1` | `OPENAI_API_KEY` |
-| `openai_responses` | `openai_responses` | `https://api.openai.com/v1` | `OPENAI_API_KEY` |
+| `openai--chat_completions` | `chat_completions` | `https://api.openai.com/v1` | `OPENAI_API_KEY` |
+| `openai--open_responses` | `open_responses` | `https://api.openai.com/v1` | `OPENAI_API_KEY` |
 
 ## 推理支持
 
 两个端点均支持推理/思考功能，字段名称因 API 标准不同而略有差异。
 
-**Chat Completions (`openai`)：**
+**Chat Completions (`openai--chat_completions`)：**
 
 | 字段 | 值 |
 |:---|:---|
@@ -21,7 +21,7 @@ OpenAI 通过两个 shim 端点提供支持，分别覆盖 Chat Completions API 
 | Effort 范围 | `minimal` → `high` |
 | 可见性模式 | `auto`、`concise`、`detailed` |
 
-**Responses API (`openai_responses`)：**
+**Responses API (`openai--open_responses`)：**
 
 | 字段 | 值 |
 |:---|:---|
@@ -31,7 +31,7 @@ OpenAI 通过两个 shim 端点提供支持，分别覆盖 Chat Completions API 
 
 ## 能力标志
 
-| 标志 | `openai` | `openai_responses` |
+| 标志 | `openai--chat_completions` | `openai--open_responses` |
 |:---|:---:|:---:|
 | 自定义工具 | ✅ | ✅ |
 | 最大工具描述长度 | 1024 字符 | — |
@@ -49,7 +49,7 @@ OpenAI 通过两个 shim 端点提供支持，分别覆盖 Chat Completions API 
     {
       "providers": {
         "openai": {
-          "shim": "openai",
+          "shim": "openai--chat_completions",
           "api_key": "${OPENAI_API_KEY}"
         }
       }
@@ -62,7 +62,7 @@ OpenAI 通过两个 shim 端点提供支持，分别覆盖 Chat Completions API 
     {
       "providers": {
         "openai-responses": {
-          "shim": "openai_responses",
+          "shim": "openai--open_responses",
           "api_key": "${OPENAI_API_KEY}"
         }
       }
@@ -71,5 +71,5 @@ OpenAI 通过两个 shim 端点提供支持，分别覆盖 Chat Completions API 
 
 ## 备注
 
-- `openai` shim 使用 Chat Completions 格式（`/v1/chat/completions`），而 `openai_responses` 使用 Responses 格式（`/v1/responses`）。请根据下游客户端所需的格式进行选择。
+- `openai--chat_completions` shim 使用 Chat Completions 格式（`/v1/chat/completions`），而 `openai--open_responses` 使用 Responses 格式（`/v1/responses`）。请根据下游客户端所需的格式进行选择。
 - 响应 ID 前缀不同：Chat Completions 为 `chatcmpl-`，Responses API 为 `resp_`。

@@ -15,15 +15,15 @@ title: 配置
 
 ```jsonc
 "providers": {
-  "my-openai":   { "type": "openai_chat",      "api_key": "sk-...",     "base_url": "https://api.openai.com/v1" },
-  "my-anthropic": { "type": "anthropic",        "api_key": "sk-ant-...", "base_url": "https://api.anthropic.com" },
-  "my-google":   { "type": "google",            "api_key": "AIza...",    "base_url": "https://generativelanguage.googleapis.com" }
+  "my-openai":   { "type": "chat_completions",      "api_key": "sk-...",     "base_url": "https://api.openai.com/v1" },
+  "my-anthropic": { "type": "messages",        "api_key": "sk-ant-...", "base_url": "https://api.anthropic.com" },
+  "my-google":   { "type": "google_generate",            "api_key": "AIza...",    "base_url": "https://generativelanguage.googleapis.com" }
 }
 ```
 
 提供方名称是用户自定义的字符串（如 `"my-openai"`、`"prod-claude"`）。`type` 字段指定使用哪种 API 标准。
 
-可用类型：`openai_chat`、`openai_responses`、`anthropic`、`google`、`google_interactions`。
+可用类型：`chat_completions`、`open_responses`、`messages`、`google_generate`、`google_interactions`。
 
 ### 使用 Shim
 
@@ -31,18 +31,18 @@ title: 配置
 
 ```jsonc
 "providers": {
-  "my-deepseek":   { "shim": "deepseek",   "api_key": "${DEEPSEEK_API_KEY}" },
-  "my-volcengine": { "shim": "volcengine",  "api_key": "${VOLCENGINE_API_KEY}", "base_url": "https://ark.cn-beijing.volces.com/api/v3" }
+  "my-deepseek":   { "shim": "deepseek--chat_completions",   "api_key": "${DEEPSEEK_API_KEY}" },
+  "my-volcengine": { "shim": "volcengine--chat_completions",  "api_key": "${VOLCENGINE_API_KEY}", "base_url": "https://ark.cn-beijing.volces.com/api/v3" }
 }
 ```
 
 指定 `shim` 时：
 
-- **基础类型**会自动解析（如 `deepseek` → `openai_chat`）
+- **基础类型**会自动解析（如 `deepseek--chat_completions` → `chat_completions`）
 - 如果配置中未设置，会从 shim 填充默认的 **`base_url`** 和 **`api_key` 环境变量**
 - 请求/响应转换时会应用**字段级转换**（如 Volcengine 的 shim 会剥离其 API 不支持的 `logprobs` 和 `top_logprobs` 字段）
 
-内置 shim：`openai`、`openai_responses`、`anthropic`、`google`、`deepseek`、`volcengine`。
+内置 shim：`openai--chat_completions`、`openai--open_responses`、`anthropic--messages`、`google--google_generate`、`deepseek--chat_completions`、`volcengine--chat_completions`。
 
 也可以通过 `register_shim()` 以编程方式注册自定义 shim。
 
@@ -70,14 +70,14 @@ Shim 支持 `max_images` 和 `max_images_pattern` 字段，用于对每次请求
     提供方类型解析顺序为：`shim` → `type` → 提供方名称（兜底）。
 
 !!! note "向后兼容"
-    如果 `shim` 和 `type` 都省略，提供方名称本身将用作类型。这意味着使用旧格式（提供方名称为 `openai_chat`、`anthropic` 等）的配置无需修改即可继续使用。
+    如果 `shim` 和 `type` 都省略，提供方名称本身将用作类型。配置中 `shim` / `type` 里的旧写法（如 `openai_chat`、`openai_responses`、`anthropic`、`google` 等）会在启动时一次性改写为规范名（幂等，并保存 `.pre-migration.bak`），因此旧配置仍可继续使用；无法映射的名称会以指向文档的错误拒绝。
 
 ### 启用 / 禁用提供方
 
 每个提供方支持 `enabled` 字段（默认 `true`）。禁用的提供方及其关联模型将从路由中静默排除：
 
 ```jsonc
-"my-openai": { "type": "openai_chat", "api_key": "sk-...", "base_url": "https://api.openai.com/v1", "enabled": false }
+"my-openai": { "type": "chat_completions", "api_key": "sk-...", "base_url": "https://api.openai.com/v1", "enabled": false }
 ```
 
 这在需要临时下线提供方但不删除配置时很有用。[管理面板](admin-panel.md)提供了切换开关来操作此功能。
@@ -87,7 +87,7 @@ Shim 支持 `max_images` 和 `max_images_pattern` 字段，用于对每次请求
 每个提供方支持通过逗号分隔配置多个 API 密钥，网关以轮询方式依次使用：
 
 ```jsonc
-"my-openai": { "type": "openai_chat", "api_key": "sk-key1,sk-key2,sk-key3", "base_url": "https://api.openai.com/v1" }
+"my-openai": { "type": "chat_completions", "api_key": "sk-key1,sk-key2,sk-key3", "base_url": "https://api.openai.com/v1" }
 ```
 
 ### 环境变量替换
@@ -95,7 +95,7 @@ Shim 支持 `max_images` 和 `max_images_pattern` 字段，用于对每次请求
 API 密钥支持 `${ENV_VAR}` 语法 — 启动时从环境变量读取：
 
 ```jsonc
-"my-openai": { "type": "openai_chat", "api_key": "${OPENAI_API_KEY}", "base_url": "https://api.openai.com/v1" }
+"my-openai": { "type": "chat_completions", "api_key": "${OPENAI_API_KEY}", "base_url": "https://api.openai.com/v1" }
 ```
 
 ### 动态令牌刷新（`token_command`）
@@ -150,7 +150,7 @@ volumes:
 可为单个提供方指定代理：
 
 ```jsonc
-"my-anthropic": { "type": "anthropic", "api_key": "sk-ant-...", "base_url": "https://api.anthropic.com", "proxy": "http://proxy:8080" }
+"my-anthropic": { "type": "messages", "api_key": "sk-ant-...", "base_url": "https://api.anthropic.com", "proxy": "http://proxy:8080" }
 ```
 
 ## 代理配置
@@ -563,13 +563,13 @@ soft_error_patterns:
 ```jsonc
 {
   "providers": {
-    "openai-prod":    { "type": "openai_chat",      "api_key": "${OPENAI_API_KEY}",    "base_url": "https://api.openai.com/v1" },
-    "openai-resp":    { "type": "openai_responses",  "api_key": "${OPENAI_API_KEY}",    "base_url": "https://api.openai.com/v1" },
-    "anthropic-prod": { "type": "anthropic",         "api_key": "${ANTHROPIC_API_KEY}",  "base_url": "https://api.anthropic.com" },
-    "google-prod":    { "type": "google",            "api_key": "${GOOGLE_API_KEY}",     "base_url": "https://generativelanguage.googleapis.com" },
+    "openai-prod":    { "type": "chat_completions",      "api_key": "${OPENAI_API_KEY}",    "base_url": "https://api.openai.com/v1" },
+    "openai-resp":    { "type": "open_responses",  "api_key": "${OPENAI_API_KEY}",    "base_url": "https://api.openai.com/v1" },
+    "anthropic-prod": { "type": "messages",         "api_key": "${ANTHROPIC_API_KEY}",  "base_url": "https://api.anthropic.com" },
+    "google-prod":    { "type": "google_generate",            "api_key": "${GOOGLE_API_KEY}",     "base_url": "https://generativelanguage.googleapis.com" },
     // 基于 Shim 的提供方 — base_url 和 transforms 自动解析
-    "deepseek":       { "shim": "deepseek",          "api_key": "${DEEPSEEK_API_KEY}" },
-    "volcengine":     { "shim": "volcengine",         "api_key": "${VOLCENGINE_API_KEY}", "base_url": "https://ark.cn-beijing.volces.com/api/v3" }
+    "deepseek":       { "shim": "deepseek--chat_completions",          "api_key": "${DEEPSEEK_API_KEY}" },
+    "volcengine":     { "shim": "volcengine--chat_completions",         "api_key": "${VOLCENGINE_API_KEY}", "base_url": "https://ark.cn-beijing.volces.com/api/v3" }
   },
   "models": {
     "gpt-4o":                     { "provider": "openai-prod",    "capabilities": ["text", "vision", "tools"] },

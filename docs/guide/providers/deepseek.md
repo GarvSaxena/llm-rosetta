@@ -6,7 +6,7 @@ DeepSeek 通过兼容 OpenAI Chat Completions 的 API 提供支持，并针对�
 
 | Shim 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 |
 |:---|:---|:---|:---|
-| `deepseek` | `openai_chat` | `https://api.deepseek.com` | `DEEPSEEK_API_KEY` |
+| `deepseek--chat_completions` | `chat_completions` | `https://api.deepseek.com` | `DEEPSEEK_API_KEY` |
 
 ## 推理支持
 
@@ -38,7 +38,7 @@ DeepSeek 通过兼容 OpenAI Chat Completions 的 API 提供支持，并针对�
 {
   "providers": {
     "deepseek": {
-      "shim": "deepseek",
+      "shim": "deepseek--chat_completions",
       "api_key": "${DEEPSEEK_API_KEY}"
     }
   }

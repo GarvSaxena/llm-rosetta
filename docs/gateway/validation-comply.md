@@ -14,7 +14,7 @@ title: 合规性测试
 |------|------|:-----:|
 | OpenAI Chat Completions | `openai-chat` | 8 |
 | Open Responses | `open-responses` | 12 |
-| Anthropic Messages | `anthropic` | 8 |
+| Anthropic Messages | `messages` | 8 |
 | Google GenAI | `google-genai` | 9 |
 
 ## 安装

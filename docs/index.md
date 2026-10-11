@@ -41,10 +41,10 @@ Provider A ↔ **IR** ↔ Provider B — 任何格式进，任何格式出。
     在自己的代码里做格式转换，不需要起服务器：
 
     ```python
-    from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+    from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 
-    openai_conv = OpenAIChatConverter()
-    anthropic_conv = AnthropicConverter()
+    openai_conv = ChatCompletionsConverter()
+    anthropic_conv = MessagesConverter()
 
     # OpenAI 格式 → IR → Anthropic 格式
     ir_request = openai_conv.request_from_provider(openai_request)
@@ -89,11 +89,11 @@ Provider A ↔ **IR** ↔ Provider B — 任何格式进，任何格式出。
 
 | 提供方 | API 标准 | ProviderType |
 |--------|---------|:------------:|
-| OpenAI | Chat Completions | `openai_chat` |
-| OpenAI | Responses | `openai_responses` |
+| OpenAI | Chat Completions | `chat_completions` |
+| OpenAI | Responses | `open_responses` |
 | Open Responses | 厂商中立标准 | `open_responses` |
-| Anthropic | Messages | `anthropic` |
-| Google | GenAI | `google` |
+| Anthropic | Messages | `messages` |
+| Google | GenAI | `google_generate` |
 | Google | Interactions | `google_interactions` |
 
 各格式的详细对比见 [API 标准](guide/api-standards.md)，完整的提供方支持矩阵见[提供方兼容性](guide/compatibility.md)。

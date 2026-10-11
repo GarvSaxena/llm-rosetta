@@ -11,9 +11,9 @@ LLM-Rosetta 只有四个**转换器**——每种 API 标准一个（OpenAI Chat
 ## 架构
 
 ```text
-ProviderShim ("deepseek")
-├── name: "deepseek"
-├── base: "openai_chat"              → 选择转换器
+ProviderShim ("deepseek--chat_completions")
+├── name: "deepseek--chat_completions"
+├── base: "chat_completions"              → 选择转换器
 ├── default_base_url: "https://api.deepseek.com"
 ├── default_api_key_env: "DEEPSEEK_API_KEY"
 ├── logo: "https://cdn.jsdelivr.net/..."
@@ -59,7 +59,7 @@ src/llm_rosetta/shims/providers/
 
 ```yaml
 name: deepseek
-base: openai_chat
+base: chat_completions
 default_base_url: https://api.deepseek.com
 default_api_key_env: DEEPSEEK_API_KEY
 logo: https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/deepseek.svg
@@ -143,7 +143,7 @@ def register_shims():
     if os.getenv("MY_INTERNAL_PROVIDER"):
         register_shim(ProviderShim(
             name="my-internal",
-            base="openai_chat",
+            base="chat_completions",
             default_base_url="http://internal:8080/v1",
         ))
 ```
@@ -157,22 +157,22 @@ LLM-Rosetta 内置 16 个提供方 shim：
 
 | 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 | 转换规则 |
 |------|---------|--------------|-----------------|---------|
-| `openai` | `openai_chat` | `https://api.openai.com/v1` | `OPENAI_API_KEY` | — |
-| `openai_responses` | `openai_responses` | `https://api.openai.com/v1` | `OPENAI_API_KEY` | — |
-| `anthropic` | `anthropic` | `https://api.anthropic.com` | `ANTHROPIC_API_KEY` | — |
-| `google` | `google` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` | — |
-| `deepseek` | `openai_chat` | `https://api.deepseek.com` | `DEEPSEEK_API_KEY` | 剥离 `n`、`logit_bias`、`seed` |
-| `volcengine--openai_chat` | `openai_chat` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` | 剥离 `logprobs`、`top_logprobs` |
-| `volcengine--openai_responses` | `openai_responses` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` | — |
-| `xai` | `openai_chat` | `https://api.x.ai/v1` | `XAI_API_KEY` | 剥离 `logit_bias` |
-| `qwen` | `openai_chat` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `DASHSCOPE_API_KEY` | 剥离 `frequency_penalty`、`logit_bias` |
-| `moonshot` | `openai_chat` | `https://api.moonshot.cn/v1` | `MOONSHOT_API_KEY` | 剥离 `logprobs`、`top_logprobs`、`logit_bias`、`seed` |
-| `minimax--openai_chat` | `openai_chat` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` | 剥离 + reasoning_split 注入 |
-| `minimax--anthropic` | `anthropic` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` | — |
-| `zhipu` | `openai_chat` | `https://open.bigmodel.cn/api/paas/v4` | `ZHIPU_API_KEY` | 剥离 `n`、penalties、`logprobs`、`logit_bias`、`seed` |
-| `openrouter` | `openai_chat` | `https://openrouter.ai/api/v1` | `OPENROUTER_API_KEY` | 重命名 `reasoning` → `reasoning_content` |
-| `argo--openai_chat` | `openai_chat` | `https://apps.inside.anl.gov/argoapi/v1` | `ARGO_API_KEY` | `max_tokens` → `max_completion_tokens` |
-| `argo--anthropic` | `anthropic` | `https://apps.inside.anl.gov/argoapi` | `ARGO_API_KEY` | OpenAI 响应格式归一化 |
+| `openai--chat_completions` | `chat_completions` | `https://api.openai.com/v1` | `OPENAI_API_KEY` | — |
+| `openai--open_responses` | `open_responses` | `https://api.openai.com/v1` | `OPENAI_API_KEY` | — |
+| `anthropic--messages` | `messages` | `https://api.anthropic.com` | `ANTHROPIC_API_KEY` | — |
+| `google--google_generate` | `google_generate` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` | — |
+| `deepseek--chat_completions` | `chat_completions` | `https://api.deepseek.com` | `DEEPSEEK_API_KEY` | 剥离 `n`、`logit_bias`、`seed` |
+| `volcengine--chat_completions` | `chat_completions` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` | 剥离 `logprobs`、`top_logprobs` |
+| `volcengine--open_responses` | `open_responses` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` | — |
+| `xai` | `chat_completions` | `https://api.x.ai/v1` | `XAI_API_KEY` | 剥离 `logit_bias` |
+| `qwen` | `chat_completions` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `DASHSCOPE_API_KEY` | 剥离 `frequency_penalty`、`logit_bias` |
+| `moonshot` | `chat_completions` | `https://api.moonshot.cn/v1` | `MOONSHOT_API_KEY` | 剥离 `logprobs`、`top_logprobs`、`logit_bias`、`seed` |
+| `minimax--chat_completions` | `chat_completions` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` | 剥离 + reasoning_split 注入 |
+| `minimax--messages` | `messages` | `https://api.minimaxi.com/v1` | `MINIMAX_API_KEY` | — |
+| `zhipu` | `chat_completions` | `https://open.bigmodel.cn/api/paas/v4` | `ZHIPU_API_KEY` | 剥离 `n`、penalties、`logprobs`、`logit_bias`、`seed` |
+| `openrouter--chat_completions` | `chat_completions` | `https://openrouter.ai/api/v1` | `OPENROUTER_API_KEY` | 重命名 `reasoning` → `reasoning_content` |
+| `argo--chat_completions` | `chat_completions` | `https://apps.inside.anl.gov/argoapi/v1` | `ARGO_API_KEY` | `max_tokens` → `max_completion_tokens` |
+| `argo--messages` | `messages` | `https://apps.inside.anl.gov/argoapi` | `ARGO_API_KEY` | OpenAI 响应格式归一化 |
 
 ## 推理配置
 
@@ -228,8 +228,8 @@ LLM-Rosetta 内置 16 个提供方 shim：
 当同一提供方下不同模型有不同推理能力时，使用 `model_overrides` 声明按模型的配置。每个覆盖项继承提供方级默认值，按**上游模型 ID**（别名解析后）为键：
 
 ```yaml
-name: argo--anthropic
-base: anthropic
+name: argo--messages
+base: messages
 reasoning:
   thinking_type: enabled       # 大多数模型的默认值
   effort_map: { ... }
@@ -261,15 +261,15 @@ reasoning:
 
 ## Argo Shim
 
-`argo--openai_chat` 和 `argo--anthropic` 面向 **Argo 网关** —— 这是某些机构（如 Argonne 国家实验室）使用的代理层，将多个上游 LLM 提供方统一暴露在单一端点之后。
+`argo--chat_completions` 和 `argo--messages` 面向 **Argo 网关** —— 这是某些机构（如 Argonne 国家实验室）使用的代理层，将多个上游 LLM 提供方统一暴露在单一端点之后。
 
 两个 shim 都使用 `model_id_field: internal_id` —— 模型标识符通过 `internal_id` 而非 `model` 字段传递。
 
-### `argo--openai_chat`
+### `argo--chat_completions`
 
 OpenAI 兼容 shim，附带一个 transform：`max_tokens` → `max_completion_tokens`（新版 OpenAI 模型拒绝旧字段名）。
 
-### `argo--anthropic`
+### `argo--messages`
 
 - **模型级 `thinking_type` 覆盖**：默认 `thinking_type: enabled`，通过 `model_overrides` 为 `claudeopus47` 设置 `thinking_type: adaptive`（Vertex AI 后端）。声明式处理。
 - **`unsigned_reasoning_blocks: preserve`**：历史消息中没有有效签名的 thinking block 保存在 metadata 中而非转发（避免 Argo 400 错误）。
@@ -283,7 +283,7 @@ OpenAI 兼容 shim，附带一个 transform：`max_tokens` → `max_completion_t
 {
   "providers": {
     "argo": {
-      "shim": "argo--anthropic",
+      "shim": "argo--messages",
       "base_url": "https://your-argo-instance.example.com/",
       "api_key": "${ARGO_API_KEY}"
     }
@@ -308,7 +308,7 @@ OpenAI 兼容 shim，附带一个 transform：`max_tokens` → `max_completion_t
 
 ```yaml
 name: my-provider
-base: openai_chat
+base: chat_completions
 supports_custom_tools: true
 hoist_system_messages: true
 multimodal_tool_result: false
@@ -357,7 +357,7 @@ response_body_transforms = (harmony_tool_call_safeguard(),)
 from llm_rosetta import convert
 
 # 当 source/target 是 shim 名称时，转换规则自动应用
-result = convert(request_body, source="openai_chat", target="volcengine")
+result = convert(request_body, source="chat_completions", target="volcengine--chat_completions")
 # → logprobs 和 top_logprobs 从输出中剥离
 ```
 
@@ -395,10 +395,10 @@ flowchart LR
 from llm_rosetta import get_converter_for_provider
 
 # 基础类型 —— 与之前一样
-converter = get_converter_for_provider("openai_chat")
+converter = get_converter_for_provider("chat_completions")
 
-# Shim 名称 —— 通过注册表解析为 "openai_chat"
-converter = get_converter_for_provider("deepseek")
+# Shim 名称 —— 通过注册表解析为 "chat_completions"
+converter = get_converter_for_provider("deepseek--chat_completions")
 ```
 
 ### 解析基础类型
@@ -408,8 +408,8 @@ converter = get_converter_for_provider("deepseek")
 ```python
 from llm_rosetta import resolve_base
 
-resolve_base("deepseek")       # → "openai_chat"
-resolve_base("openai_chat")    # → "openai_chat"（直接透传）
+resolve_base("deepseek--chat_completions")       # → "chat_completions"
+resolve_base("chat_completions")    # → "chat_completions"（直接透传）
 resolve_base("unknown")        # → "unknown"（直接透传）
 ```
 
@@ -425,7 +425,7 @@ from llm_rosetta.transforms import strip_fields
 
 my_shim = ProviderShim(
     name="my-provider",
-    base="openai_chat",
+    base="chat_completions",
     default_base_url="https://api.my-provider.com/v1",
     default_api_key_env="MY_PROVIDER_API_KEY",
     post_ir_transforms=(strip_fields("logprobs", "seed"),),
@@ -444,7 +444,7 @@ register_shim(my_shim)
 
     ```yaml
     name: my-provider
-    base: openai_chat
+    base: chat_completions
     default_base_url: https://api.my-provider.com/v1
     default_api_key_env: MY_PROVIDER_API_KEY
     logo: https://example.com/logo.svg
@@ -482,7 +482,7 @@ unregister_shim("my-provider")
 {
   "providers": {
     "my-deepseek": {
-      "shim": "deepseek",
+      "shim": "deepseek--chat_completions",
       "api_key": "${DEEPSEEK_API_KEY}"
       // base_url 默认使用 shim 的 default_base_url
     }

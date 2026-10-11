@@ -49,10 +49,10 @@ ir_tool: ToolDefinition = {
 
 | 提供方 | 输出结构 |
 |---|---|
-| `openai_chat` | `{"type": "function", "function": {"name": …, "description": …, "parameters": {…}}}` |
-| `openai_responses` | `{"type": "function", "name": …, "description": …, "parameters": {…}}` |
-| `anthropic` | `{"name": …, "description": …, "input_schema": {…}}` |
-| `google` | `{"function_declarations": [{"name": …, "description": …, "parameters": {…}}]}` |
+| `chat_completions` | `{"type": "function", "function": {"name": …, "description": …, "parameters": {…}}}` |
+| `open_responses` | `{"type": "function", "name": …, "description": …, "parameters": {…}}` |
+| `messages` | `{"name": …, "description": …, "input_schema": {…}}` |
+| `google_generate` | `{"function_declarations": [{"name": …, "description": …, "parameters": {…}}]}` |
 | `google_interactions` | `{"type": "function", "name": …, "description": …, "parameters": {…}}` |
 
 ## 快速示例
@@ -72,25 +72,25 @@ ir_tool = {
 }
 
 # ---- IR → 提供方格式 ----
-openai_tool    = tool_ops.to_openai_chat(ir_tool)
-responses_tool = tool_ops.to_openai_responses(ir_tool)
-anthropic_tool = tool_ops.to_anthropic(ir_tool)
+openai_tool    = tool_ops.to_chat_completions(ir_tool)
+responses_tool = tool_ops.to_open_responses(ir_tool)
+anthropic_tool = tool_ops.to_messages(ir_tool)
 google_tool    = tool_ops.to_google_generate(ir_tool)
 interact_tool  = tool_ops.to_google_interactions(ir_tool)
 
 # 统一调度写法
-same_tool = tool_ops.to_provider(ir_tool, provider="anthropic")
+same_tool = tool_ops.to_provider(ir_tool, provider="messages")
 
 # ---- 提供方格式 → IR ----
-recovered = tool_ops.from_openai_chat(openai_tool)
-recovered = tool_ops.from_anthropic(anthropic_tool)
-recovered = tool_ops.from_provider(anthropic_tool, provider="anthropic")
+recovered = tool_ops.from_chat_completions(openai_tool)
+recovered = tool_ops.from_messages(anthropic_tool)
+recovered = tool_ops.from_provider(anthropic_tool, provider="messages")
 ```
 
 ### 示例：Anthropic 输出
 
 ```python
-tool_ops.to_anthropic(ir_tool)
+tool_ops.to_messages(ir_tool)
 # →
 {
     "name": "get_weather",
@@ -131,11 +131,10 @@ tool_ops.to_google_generate(ir_tool)
 
 | 规范名称 | 可接受的别名 |
 |---|---|
-| `openai_chat` | `openai-chat` |
-| `openai_responses` | `openai-responses` |
-| `open_responses` | `open-responses` |
-| `anthropic` | — |
-| `google` | `google-genai` |
+| `chat_completions` | `openai-chat` |
+| `open_responses` | `openai-responses`, `open-responses` |
+| `messages` | `anthropic` |
+| `google_generate` | `google`, `google-genai` |
 | `google_interactions` | `google-interactions` |
 
 ## 批量转换
@@ -146,10 +145,10 @@ tool_ops.to_google_generate(ir_tool)
 ir_tools = [tool_a, tool_b, tool_c]
 
 # IR → Anthropic
-anthropic_tools = [tool_ops.to_anthropic(t) for t in ir_tools]
+anthropic_tools = [tool_ops.to_messages(t) for t in ir_tools]
 
 # Anthropic → IR
-ir_recovered = [tool_ops.from_anthropic(t) for t in anthropic_tools]
+ir_recovered = [tool_ops.from_messages(t) for t in anthropic_tools]
 # 过滤掉不支持的工具类型返回的 None
 ir_recovered = [t for t in ir_recovered if t is not None]
 ```
@@ -178,10 +177,10 @@ try:
     tool_ops.to_provider(ir_tool, provider="unknown")
 except ValueError as exc:
     print(exc)
-# Unknown provider: 'unknown'. Supported: openai_chat, openai_responses, ...
+# Unknown provider: 'unknown'. Supported: chat_completions, open_responses, ...
 ```
 
-各提供方的快捷函数（`to_anthropic` 等）不进行名称解析，不会因提供方名称抛出 `ValueError`。
+各提供方的快捷函数（`to_messages` 等）不进行名称解析，不会因提供方名称抛出 `ValueError`。
 
 ---
 
@@ -203,8 +202,8 @@ except ValueError as exc:
 
 ```python
 ir_choice = {"mode": "auto"}
-provider_choice = tool_ops.choice_to_provider(ir_choice, provider="anthropic")
-recovered = tool_ops.choice_from_provider(provider_choice, provider="anthropic")
+provider_choice = tool_ops.choice_to_provider(ir_choice, provider="messages")
+recovered = tool_ops.choice_from_provider(provider_choice, provider="messages")
 ```
 
 ::: llm_rosetta.tool_ops.choice_to_provider
@@ -220,8 +219,8 @@ ir_call = {
     "tool_name": "get_weather",
     "tool_input": {"city": "London"},
 }
-provider_call = tool_ops.call_to_provider(ir_call, provider="openai_chat")
-recovered = tool_ops.call_from_provider(provider_call, provider="openai_chat")
+provider_call = tool_ops.call_to_provider(ir_call, provider="chat_completions")
+recovered = tool_ops.call_from_provider(provider_call, provider="chat_completions")
 ```
 
 ::: llm_rosetta.tool_ops.call_to_provider
@@ -236,8 +235,8 @@ ir_result = {
     "tool_call_id": "call_123",
     "result": "Sunny, 22°C",
 }
-provider_result = tool_ops.result_to_provider(ir_result, provider="anthropic")
-recovered = tool_ops.result_from_provider(provider_result, provider="anthropic")
+provider_result = tool_ops.result_to_provider(ir_result, provider="messages")
+recovered = tool_ops.result_from_provider(provider_result, provider="messages")
 ```
 
 ::: llm_rosetta.tool_ops.result_to_provider
@@ -248,8 +247,8 @@ recovered = tool_ops.result_from_provider(provider_result, provider="anthropic")
 
 ```python
 ir_config = {"tool_choice": "auto"}
-provider_config = tool_ops.config_to_provider(ir_config, provider="openai_chat")
-recovered = tool_ops.config_from_provider(provider_config, provider="openai_chat")
+provider_config = tool_ops.config_to_provider(ir_config, provider="chat_completions")
+recovered = tool_ops.config_from_provider(provider_config, provider="chat_completions")
 ```
 
 ::: llm_rosetta.tool_ops.config_to_provider
@@ -262,11 +261,11 @@ recovered = tool_ops.config_from_provider(provider_config, provider="openai_chat
 
 ### IR 转提供方格式
 
-::: llm_rosetta.tool_ops.to_openai_chat
+::: llm_rosetta.tool_ops.to_chat_completions
 
-::: llm_rosetta.tool_ops.to_openai_responses
+::: llm_rosetta.tool_ops.to_open_responses
 
-::: llm_rosetta.tool_ops.to_anthropic
+::: llm_rosetta.tool_ops.to_messages
 
 ::: llm_rosetta.tool_ops.to_google_generate
 
@@ -274,11 +273,11 @@ recovered = tool_ops.config_from_provider(provider_config, provider="openai_chat
 
 ### 提供方格式转 IR
 
-::: llm_rosetta.tool_ops.from_openai_chat
+::: llm_rosetta.tool_ops.from_chat_completions
 
-::: llm_rosetta.tool_ops.from_openai_responses
+::: llm_rosetta.tool_ops.from_open_responses
 
-::: llm_rosetta.tool_ops.from_anthropic
+::: llm_rosetta.tool_ops.from_messages
 
 ::: llm_rosetta.tool_ops.from_google_generate
 

@@ -83,7 +83,7 @@ stream_response_from_provider(...)   # Provider → IR（流式）
 ## 规则 3：域缩写
 
 - 内部函数始终使用 `ir` 和 `p` — 不使用 `provider`、`responses`、
-  `anthropic` 等长格式。
+  `messages` 等长格式。
 - 公开 API 方法使用完整单词 `provider`。
 
 ## 总结

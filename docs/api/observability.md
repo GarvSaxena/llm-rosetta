@@ -36,8 +36,8 @@ from llm_rosetta.observability import (
 metrics = MetricsCollector()
 metrics.record_request(
     model="gpt-4o",
-    source="openai_chat",
-    target="anthropic",
+    source="chat_completions",
+    target="messages",
     status_code=200,
     duration_ms=150.0,
     is_stream=False,
@@ -67,8 +67,8 @@ snapshot = metrics.snapshot(series_seconds=60)
 ```python
 entry = RequestLogEntry.create(
     model="gpt-4o",
-    source_provider="openai_chat",
-    target_provider="anthropic",
+    source_provider="chat_completions",
+    target_provider="messages",
     is_stream=False,
     status_code=200,
     duration_ms=123.4,
@@ -322,8 +322,8 @@ dump_id = dump_error(
     response_text="Internal Server Error",
     converted_body=converted,
     model="gpt-4o",
-    source_provider="openai_chat",
-    target_provider="anthropic",
+    source_provider="chat_completions",
+    target_provider="messages",
     provider_name="My Anthropic",
     status_code=500,
     error_phase="upstream",
@@ -341,8 +341,8 @@ dump_id = dump_error(
 | `response_text` | `str \| None` | 上游错误响应文本（截断至 64 KB） |
 | `converted_body` | `dict \| None` | 转换后的目标格式请求体（如有） |
 | `model` | `str \| None` | 请求中的模型名称 |
-| `source_provider` | `str \| None` | 源 API 格式（如 `"openai_chat"`） |
-| `target_provider` | `str \| None` | 目标 API 格式（如 `"anthropic"`） |
+| `source_provider` | `str \| None` | 源 API 格式（如 `"chat_completions"`） |
+| `target_provider` | `str \| None` | 目标 API 格式（如 `"messages"`） |
 | `provider_name` | `str \| None` | 人类可读的提供方名称 |
 | `status_code` | `int \| None` | 上游 HTTP 状态码 |
 | `error_phase` | `str \| None` | `"upstream"`、`"stream_header"`、`"stream_chunk"` 或 `"conversion"` 之一 |

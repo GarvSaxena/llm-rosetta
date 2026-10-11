@@ -99,7 +99,7 @@ Argo 代理请求到上游提供方，但会进行自己的参数校验。Anthro
 | **opus47** | ❌ type 不被接受 | ❌ type 不被接受 | ✅ | **仅接受 `adaptive`** |
 
 !!! info "opus47 shim 覆盖"
-    `argo--anthropic` shim 在提供方级声明 `thinking_type: enabled`，同时为 `claudeopus47` 设置 `model_overrides` 覆盖为 `thinking_type: adaptive`。参见 [PR #256](https://github.com/Oaklight/llm-rosetta/pull/256)。
+    `argo--messages` shim 在提供方级声明 `thinking_type: enabled`，同时为 `claudeopus47` 设置 `model_overrides` 覆盖为 `thinking_type: adaptive`。参见 [PR #256](https://github.com/Oaklight/llm-rosetta/pull/256)。
 
 ### 自动回退
 
@@ -150,7 +150,7 @@ messages.9.content.0: Invalid `signature` in `thinking` block
 | `as_is`（默认） | 原样转发未签名推理块，由目标提供方决定接受或拒绝。 |
 | `preserve` | 从出站消息中移除未签名推理块。推理内容保存在 IR 部件的 `provider_metadata.anthropic.unsigned_reasoning_blocks` 中，供下游消费者使用。 |
 
-目前仅 `argo--anthropic` 使用 `preserve`。直接调用 Anthropic API 使用 `as_is`，因为官方 API 对未签名块的处理方式与 Argo 代理层不同。
+目前仅 `argo--messages` 使用 `preserve`。直接调用 Anthropic API 使用 `as_is`，因为官方 API 对未签名块的处理方式与 Argo 代理层不同。
 
 当 `preserve` 过滤掉 assistant 消息中的所有推理部件时，该消息会被整体跳过（附带警告），而非发送空的 `content: []` 数组。
 
@@ -195,10 +195,10 @@ reasoning:
 
 | 提供方 | `disabled` | `effort_field` | `thinking_type` | `max_effort` | `unsigned_reasoning_blocks` |
 |---|---|---|---|---|---|
-| **openai** | `omit` | `reasoning_effort` | — | `high` | `as_is` |
-| **openai_responses** | `omit` | `reasoning.effort` | — | `high` | `as_is` |
-| **anthropic** | `thinking_disabled` | `output_config.effort` | — | — | `as_is` |
-| **google** | `thinking_budget_zero` | `none` | — | — | `as_is` |
+| **openai--chat_completions** | `omit` | `reasoning_effort` | — | `high` | `as_is` |
+| **open_responses** | `omit` | `reasoning.effort` | — | `high` | `as_is` |
+| **messages** | `thinking_disabled` | `output_config.effort` | — | — | `as_is` |
+| **google_generate** | `thinking_budget_zero` | `none` | — | — | `as_is` |
 | **deepseek** | `thinking_disabled` | `reasoning_effort` | — | — | `as_is` |
 | **volcengine**（Chat） | `thinking_disabled` | `reasoning_effort` | `enabled` | `high` | `as_is` |
 | **volcengine**（Responses） | `omit` | `reasoning.effort` | — | — | `as_is` |

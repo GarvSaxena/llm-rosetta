@@ -42,6 +42,22 @@ All notable changes to LLM-Rosetta are documented here. This project follows [Ke
 
 - **Gateway 模块重组** (PRs [#739](https://github.com/Oaklight/llm-rosetta/pull/739), [#738](https://github.com/Oaklight/llm-rosetta/pull/738), [#744](https://github.com/Oaklight/llm-rosetta/pull/744))：后端文件移入 `gateway/middleware/` 和 `gateway/pipelines/` 子包；admin JS 移入 `js/core/`、`js/tabs/`、`js/components/`。**旧的扁平 import 路径（`gateway.auth`、`gateway.embeddings` 等）不再有效**——请使用 `gateway.middleware.*` / `gateway.pipelines.*`。参见 `argo-proxy` [#179](https://github.com/Oaklight/argo-proxy/pull/179) 的迁移。
 
+- **（破坏性）Anthropic base 重命名为 `messages`，shim 名称规范化** (PR [#923](https://github.com/Oaklight/llm-rosetta/pull/923), issue [#917](https://github.com/Oaklight/llm-rosetta/issues/917))：Anthropic Messages API 的 base 类型现为中性名 `messages`——该格式已被众多 provider 复刻而成为事实标准，因此不再绑定 `anthropic` 厂商。converter 模块移至 `llm_rosetta.converters.messages`，类名改为 `MessagesConverter`（`AnthropicConverter` / `converters.anthropic` 保留为已弃用别名）。Shim 名称现统一为规范形式 `<provider>--<base>`：`openai--chat_completions`、`openai--open_responses`、`anthropic--messages`、`google--google_generate`、`google--google_interactions`，其余为 `<provider>--chat_completions` / `<provider>--open_responses`。shim 注册表只认规范名——base *格式* 永远不会解析到厂商 shim（`get_shim("google_generate")` 返回 `None`；`google_generate` 是格式名，`google--google_generate` 才是 shim 名）。Base converter 现为厂商中立：裸 `type: <base>` 不再附带隐式的厂商 `base_url` 或 API-key 环境变量——它们仅在管理台作为占位提示显示，因此必须显式设置 `base_url` 或使用 `shim:`。为便于过渡，网关会在启动时改写 `providers.*.shim` / `providers.*.type` 中的旧名，只改写一次且幂等，并保存 `.pre-migration.bak`；无法映射的名称会以指向文档的 `ValueError` 拒绝。旧名在库边界仍会警告并解析，直至 **0.16.0**（[#919](https://github.com/Oaklight/llm-rosetta/issues/919)）移除。
+
+  | 旧名 | 规范名 |
+  |--------|-----------|
+  | base `anthropic` | `messages` |
+  | shim `anthropic` | `anthropic--messages` |
+  | shim `openai` | `openai--chat_completions` |
+  | shim `openai_responses` | `openai--open_responses` |
+  | shim `google` / `google_generate` | `google--google_generate` |
+  | shim `google_interactions` | `google--google_interactions` |
+  | shim `<provider>--openai_chat` | `<provider>--chat_completions` |
+  | shim `<provider>--openai_responses` | `<provider>--open_responses` |
+  | type `openai_chat` | `chat_completions` |
+  | type `google` / `google-genai` | `google_generate` |
+  | base `google_generate` / `google_interactions` | 不变 |
+
 ### 变更
 
 - **Provider 名称规范化** (issue [#908](https://github.com/Oaklight/llm-rosetta/issues/908), PR [#914](https://github.com/Oaklight/llm-rosetta/pull/914))：Google generateContent 格式的规范名现为 `google_generate`；`google` 与 `google-genai` 成为已弃用别名，会在所有边界（网关 JSONC 的 `type:`/`shim:`、请求探测、库层 `source_provider`/`target_provider`、shim 解析）自动迁移，经由新的共享机制（`llm_rosetta.provider_names`）。旧写法仍可用并发出 `DeprecationWarning`；迁移是加载/入口处的归一化，不是磁盘上的改写。内置 Google shim 现以规范名 `google_generate` 注册。这些已弃用写法计划在 **0.16.0** 移除（见 [#919](https://github.com/Oaklight/llm-rosetta/issues/919)）。

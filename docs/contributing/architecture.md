@@ -69,7 +69,7 @@ LLM-Rosetta 将 portable IR 数据、可持久化的 provider passthrough 数据
 
 `ProviderPassthroughEvent` 携带 provider 原生流式 chunk。`ProviderPassthroughItem` 携带非流式请求/历史 item；`IRResponse.provider_passthrough_items` 保存独立的非流式输出 item 及其原始位置。
 
-Passthrough 数据带有 converter dialect 标签，例如 `openai_responses` 或 `anthropic`。目标 dialect 相同时恢复原生 payload 的副本；目标格式不同时丢弃。语义 item 会产生 conversion warning；生命周期/心跳 stream event 为避免 warning 泛滥而静默丢弃。
+Passthrough 数据带有 converter dialect 标签，例如 `open_responses` 或 `messages`。目标 dialect 相同时恢复原生 payload 的副本；目标格式不同时丢弃。语义 item 会产生 conversion warning；生命周期/心跳 stream event 为避免 warning 泛滥而静默丢弃。
 
 `ConversionContext` 仍然必要，因为它承担不同职责：它是单次 request/response 管线内的临时 side channel，不会序列化进 conversation history。Provider passthrough carrier 是可持久化的 IR 数据，可以跨缓存、持久化和后续 HTTP 请求继续存在。
 

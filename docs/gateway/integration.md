@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function(){
 def build_providers(config):
     return {
         "my-openai": {
-            "type": "openai_chat",
+            "type": "chat_completions",
             "api_key": config.api_key,
             "base_url": config.openai_base_url,
             "readonly": True,  # 阻止管理面板编辑

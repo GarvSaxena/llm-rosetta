@@ -130,12 +130,12 @@ done
         claude -p "What is 7*8? Reply with just the number." \
         --model claude-sonnet-4-20250514
 
-    # Claude Code + GPT（anthropic → openai_chat）
+    # Claude Code + GPT（anthropic → chat_completions）
     ANTHROPIC_BASE_URL=http://127.0.0.1:44511 \
         claude -p "What is 7*8? Reply with just the number." \
         --model gpt-4.1-nano
 
-    # Claude Code + Gemini（anthropic → openai_chat）
+    # Claude Code + Gemini（anthropic → chat_completions）
     ANTHROPIC_BASE_URL=http://127.0.0.1:44511 \
         claude -p "What is 7*8? Reply with just the number." \
         --model gemini-2.5-flash
@@ -144,7 +144,7 @@ done
 ??? example "Codex CLI"
 
     ```bash
-    # Codex + Claude（openai_responses → anthropic）
+    # Codex + Claude（open_responses → anthropic）
     ARGO_API_KEY=your_key codex exec \
         "What is 7*8? Reply with just the number." \
         -m argo:claude-sonnet-4-20250514
@@ -168,12 +168,12 @@ done
         gemini -m claude-sonnet-4-20250514 \
         -p "What is 7*8? Reply with just the number."
 
-    # Gemini CLI + GPT（google → openai_chat）
+    # Gemini CLI + GPT（google → chat_completions）
     GEMINI_API_KEY=your_key GOOGLE_GEMINI_BASE_URL=http://localhost:44511 \
         gemini -m gpt-4.1-nano \
         -p "What is 7*8? Reply with just the number."
 
-    # Gemini CLI + Gemini（google → openai_chat）
+    # Gemini CLI + Gemini（google → chat_completions）
     GEMINI_API_KEY=your_key GOOGLE_GEMINI_BASE_URL=http://localhost:44511 \
         gemini -m gemini-2.5-flash \
         -p "What is 7*8? Reply with just the number."
@@ -266,6 +266,6 @@ rm test_image.png
 
 | 客户端格式 | Claude 模型目标 | GPT/Gemini 模型目标 |
 |-----------|---------------|-------------------|
-| Anthropic Messages | 透传 | anthropic → IR → openai_chat |
-| OpenAI Responses | responses → IR → anthropic | 透传（上游 responses → openai_chat） |
-| Google GenAI | google → IR → anthropic | google → IR → openai_chat |
+| Anthropic Messages | 透传 | messages → IR → chat_completions |
+| OpenAI Responses | responses → IR → messages | 透传（上游 responses → chat_completions） |
+| Google GenAI | google_generate → IR → messages | google_generate → IR → chat_completions |

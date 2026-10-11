@@ -12,7 +12,7 @@ LLM-Rosetta 能根据请求的结构自动判断它是哪家提供方的格式�
 from llm_rosetta import detect_provider
 
 provider = detect_provider(request_dict)
-# 返回："openai_chat"、"openai_responses"、"anthropic"、"google"、"google_interactions" 或 None
+# 返回："chat_completions"、"open_responses"、"messages"、"google_generate"、"google_interactions" 或 None
 ```
 
 ## 获取转换器
@@ -20,7 +20,7 @@ provider = detect_provider(request_dict)
 ```python
 from llm_rosetta import get_converter_for_provider
 
-converter = get_converter_for_provider("anthropic")
+converter = get_converter_for_provider("messages")
 ```
 
 ## 便捷转换
@@ -31,7 +31,7 @@ from llm_rosetta import convert
 # 自动检测来源，转换到目标格式
 result = convert(
     source_body=openai_request,
-    target_provider="anthropic",
+    target_provider="messages",
     source_provider=None,  # 自动检测
 )
 ```
@@ -44,7 +44,7 @@ result = convert(
 # 规范化 OpenAI Chat 参数（例如 max_tokens → max_completion_tokens）
 result = convert(
     source_body=openai_request,
-    target_provider="openai_chat",
+    target_provider="chat_completions",
     force_conversion=True,
 )
 ```

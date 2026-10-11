@@ -6,12 +6,12 @@
 
 | Shim 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 |
 |:---|:---|:---|:---|
-| `volcengine--openai_chat` | `openai_chat` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` |
-| `volcengine--openai_responses` | `openai_responses` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` |
+| `volcengine--chat_completions` | `chat_completions` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` |
+| `volcengine--open_responses` | `open_responses` | `https://ark.cn-beijing.volces.com/api/v3` | `VOLCENGINE_API_KEY` |
 
 ## 推理支持
 
-**Chat Completions (`volcengine--openai_chat`)：**
+**Chat Completions (`volcengine--chat_completions`)：**
 
 | 字段 | 值 |
 |:---|:---|
@@ -19,7 +19,7 @@
 | Effort 范围 | `minimal` → `high` |
 | 思考模式 | `auto`、`enabled`、`disabled` |
 
-**Responses API (`volcengine--openai_responses`)：**
+**Responses API (`volcengine--open_responses`)：**
 
 | 字段 | 值 |
 |:---|:---|
@@ -30,7 +30,7 @@
 
 | Shim | 类型 | 转换 | 用途 |
 |:---|:---|:---|:---|
-| `volcengine--openai_chat` | Post-IR | `strip_fields("logprobs", "top_logprobs")` | 移除不支持的请求字段 |
+| `volcengine--chat_completions` | Post-IR | `strip_fields("logprobs", "top_logprobs")` | 移除不支持的请求字段 |
 | 两者 | IR | `hoist_late_system_messages()` | 将靠后的系统消息移至对话开头 |
 
 ## 网关配置
@@ -41,7 +41,7 @@
     {
       "providers": {
         "volcengine": {
-          "shim": "volcengine--openai_chat",
+          "shim": "volcengine--chat_completions",
           "api_key": "${VOLCENGINE_API_KEY}"
         }
       }
@@ -54,7 +54,7 @@
     {
       "providers": {
         "volcengine-responses": {
-          "shim": "volcengine--openai_responses",
+          "shim": "volcengine--open_responses",
           "api_key": "${VOLCENGINE_API_KEY}"
         }
       }

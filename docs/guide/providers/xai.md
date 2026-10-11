@@ -6,7 +6,7 @@ xAI（Grok）通过兼容 OpenAI Chat Completions 的 API 提供支持。
 
 | Shim 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 |
 |:---|:---|:---|:---|
-| `xai` | `openai_chat` | `https://api.x.ai/v1` | `XAI_API_KEY` |
+| `xai` | `chat_completions` | `https://api.x.ai/v1` | `XAI_API_KEY` |
 
 ## 推理支持
 

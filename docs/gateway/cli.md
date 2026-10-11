@@ -39,7 +39,7 @@ llm-rosetta-gateway init
 添加提供方条目到配置文件：
 
 ```bash
-llm-rosetta-gateway add provider openai_chat
+llm-rosetta-gateway add provider chat_completions
 llm-rosetta-gateway add provider anthropic --api-key "${ANTHROPIC_API_KEY}"
 ```
 

@@ -6,9 +6,9 @@
 
 | Shim 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 |
 |:---|:---|:---|:---|
-| `asksage--openai_chat` | `openai_chat` | `https://api.asksage.ai/server/openai/v1` | `ASKSAGE_API_KEY` |
-| `asksage--openai_responses` | `openai_responses` | `https://api.asksage.ai/server/openai/v1` | `ASKSAGE_API_KEY` |
-| `asksage--anthropic` | `anthropic` | `https://api.asksage.ai/server/anthropic` | `ASKSAGE_API_KEY` |
+| `asksage--chat_completions` | `chat_completions` | `https://api.asksage.ai/server/openai/v1` | `ASKSAGE_API_KEY` |
+| `asksage--open_responses` | `open_responses` | `https://api.asksage.ai/server/openai/v1` | `ASKSAGE_API_KEY` |
+| `asksage--messages` | `messages` | `https://api.asksage.ai/server/anthropic` | `ASKSAGE_API_KEY` |
 | `asksage--google_generate` | `google_generate` | `https://api.asksage.ai/server/google/v1beta` | `ASKSAGE_API_KEY` |
 
 ## 认证
@@ -23,8 +23,8 @@ AskSage 的 provider-compatible 端点直接接受 API key——不需要 token 
 
 | Shim | 类型 | 转换 | 用途 |
 |:---|:---|:---|:---|
-| `asksage--openai_chat` | Post-IR | `rename_field("max_tokens", "max_completion_tokens")` | AskSage 在 OpenAI 端点拒绝 `max_tokens` |
-| `asksage--openai_responses` | Post-IR | `rename_field("max_tokens", "max_completion_tokens")` | 同上 |
+| `asksage--chat_completions` | Post-IR | `rename_field("max_tokens", "max_completion_tokens")` | AskSage 在 OpenAI 端点拒绝 `max_tokens` |
+| `asksage--open_responses` | Post-IR | `rename_field("max_tokens", "max_completion_tokens")` | 同上 |
 
 Anthropic 和 Gemini shim 不需要转换——AskSage 对这些使用标准格式。
 
@@ -48,7 +48,7 @@ AskSage 部署使用实例特定的主机名。默认的 `api.asksage.ai` 是商
 ```jsonc
 {
   "providers": {
-    "asksage--openai_chat": {
+    "asksage--chat_completions": {
       "api_key": "${ASKSAGE_API_KEY}",
       "base_url": "https://api.asksage.anl.gov/server/openai/v1"
     }
@@ -61,13 +61,13 @@ AskSage 部署使用实例特定的主机名。默认的 `api.asksage.ai` 是商
 ```jsonc
 {
   "providers": {
-    "asksage--openai_chat": {
+    "asksage--chat_completions": {
       "api_key": "${ASKSAGE_API_KEY}"
     },
-    "asksage--openai_responses": {
+    "asksage--open_responses": {
       "api_key": "${ASKSAGE_API_KEY}"
     },
-    "asksage--anthropic": {
+    "asksage--messages": {
       "api_key": "${ASKSAGE_API_KEY}"
     },
     "asksage--google_generate": {
@@ -75,10 +75,10 @@ AskSage 部署使用实例特定的主机名。默认的 `api.asksage.ai` 是商
     }
   },
   "models": {
-    "gpt-4.1-nano": "asksage--openai_chat",
-    "gpt-4.1-mini": "asksage--openai_chat",
-    "claude-haiku-4-5": "asksage--anthropic",
-    "claude-sonnet-4-5": "asksage--anthropic",
+    "gpt-4.1-nano": "asksage--chat_completions",
+    "gpt-4.1-mini": "asksage--chat_completions",
+    "claude-haiku-4-5": "asksage--messages",
+    "claude-sonnet-4-5": "asksage--messages",
     "gemini-2.5-flash": "asksage--google_generate",
     "gemini-3-flash": "asksage--google_generate"
   }

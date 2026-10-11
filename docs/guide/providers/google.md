@@ -6,8 +6,8 @@ Google 通过两个 shim 端点提供支持：一个用于 generateContent API�
 
 | Shim 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 |
 |:---|:---|:---|:---|
-| `google` | `google_generate` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` |
-| `google_interactions` | `google_interactions` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` |
+| `google--google_generate` | `google_generate` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` |
+| `google--google_interactions` | `google_interactions` | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` |
 
 ## 推理支持
 
@@ -22,8 +22,8 @@ Google 通过两个 shim 端点提供支持：一个用于 generateContent API�
 
 | Shim | 类型 | 转换 | 用途 |
 |:---|:---|:---|:---|
-| `google` | IR | `hoist_late_system_messages()` | 将靠后的系统消息移至对话开头 |
-| `google_interactions` | — | — | 无转换规则 |
+| `google--google_generate` | IR | `hoist_late_system_messages()` | 将靠后的系统消息移至对话开头 |
+| `google--google_interactions` | — | — | 无转换规则 |
 
 ## 网关配置
 
@@ -33,7 +33,7 @@ Google 通过两个 shim 端点提供支持：一个用于 generateContent API�
     {
       "providers": {
         "google": {
-          "shim": "google",
+          "shim": "google--google_generate",
           "api_key": "${GOOGLE_API_KEY}"
         }
       }
@@ -46,7 +46,7 @@ Google 通过两个 shim 端点提供支持：一个用于 generateContent API�
     {
       "providers": {
         "google-interactions": {
-          "shim": "google_interactions",
+          "shim": "google--google_interactions",
           "api_key": "${GOOGLE_API_KEY}"
         }
       }
@@ -55,5 +55,5 @@ Google 通过两个 shim 端点提供支持：一个用于 generateContent API�
 
 ## 备注
 
-- `google` shim 面向 generateContent 端点，即标准的 Gemini API。`google_interactions` shim 面向较新的 Interactions API 格式。
+- `google--google_generate` shim 面向 generateContent 端点，即标准的 Gemini API。`google--google_interactions` shim 面向较新的 Interactions API 格式。
 - Google 通过 `key` 查询参数进行 API Key 认证，而非大多数其他提供方使用的 `Authorization` 请求头。

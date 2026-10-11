@@ -14,10 +14,10 @@ LLM-Rosetta 在中间放一套**中间表示（IR）**。每家提供方只需�
 
 ```mermaid
 graph LR
-    A["OpenAI Chat<br/><small>openai_chat</small>"] <--> IR["IR<br/><small>Hub</small>"]
-    B["OpenAI Responses<br/><small>openai_responses</small>"] <--> IR
-    C["Anthropic<br/><small>anthropic</small>"] <--> IR
-    D["Google GenAI<br/><small>google</small>"] <--> IR
+    A["OpenAI Chat<br/><small>chat_completions</small>"] <--> IR["IR<br/><small>Hub</small>"]
+    B["OpenAI Responses<br/><small>open_responses</small>"] <--> IR
+    C["Anthropic<br/><small>messages</small>"] <--> IR
+    D["Google GenAI<br/><small>google_generate</small>"] <--> IR
     E["Google Interactions<br/><small>google_interactions</small>"] <--> IR
 
     style IR fill:#f9a825,stroke:#f57f17,color:#000
@@ -25,7 +25,7 @@ graph LR
 
 ## 转换器架构
 
-每个转换器（如 `OpenAIChatConverter`）内部由四个 ops 类组合：
+每个转换器（如 `ChatCompletionsConverter`）内部由四个 ops 类组合：
 
 | 组件 | 负责什么 |
 |------|----------|

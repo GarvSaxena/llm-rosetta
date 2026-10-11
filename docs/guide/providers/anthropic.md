@@ -6,7 +6,7 @@ Anthropic 通过专用的 Messages API shim 提供支持，并针对 Claude 模�
 
 | Shim 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 |
 |:---|:---|:---|:---|
-| `anthropic` | `anthropic` | `https://api.anthropic.com` | `ANTHROPIC_API_KEY` |
+| `anthropic--messages` | `messages` | `https://api.anthropic.com` | `ANTHROPIC_API_KEY` |
 
 ## 推理支持
 
@@ -51,7 +51,7 @@ Anthropic 通过专用的 Messages API shim 提供支持，并针对 Claude 模�
 {
   "providers": {
     "anthropic": {
-      "shim": "anthropic",
+      "shim": "anthropic--messages",
       "api_key": "${ANTHROPIC_API_KEY}"
     }
   }

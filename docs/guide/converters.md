@@ -12,9 +12,9 @@ title: 使用转换器
 ## 创建转换器
 
 ```python
-from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 
-converter = OpenAIChatConverter()
+converter = ChatCompletionsConverter()
 ```
 
 ## 转换请求
@@ -55,9 +55,9 @@ provider_messages, warnings = converter.messages_to_provider(ir_messages)
 ## 跨提供方工作流
 
 ```python
-from llm_rosetta import OpenAIChatConverter, GoogleGenerateConverter
+from llm_rosetta import ChatCompletionsConverter, GoogleGenerateConverter
 
-openai_conv = OpenAIChatConverter()
+openai_conv = ChatCompletionsConverter()
 google_conv = GoogleGenerateConverter()
 
 # OpenAI → IR
@@ -227,13 +227,13 @@ LLM-Rosetta 自动修复两个方向的不匹配，并输出 `WARNING` 级别日
 
 ```python
 # OpenAI Chat Completions 格式
-from llm_rosetta.converters.openai_chat.tool_ops import fix_orphaned_tool_calls
+from llm_rosetta.converters.chat_completions.tool_ops import fix_orphaned_tool_calls
 
 messages = fix_orphaned_tool_calls(messages)
 messages = fix_orphaned_tool_calls(messages, placeholder="[已跳过]")
 
 # OpenAI Responses 格式
-from llm_rosetta.converters.openai_responses.tool_ops import fix_orphaned_tool_calls
+from llm_rosetta.converters.open_responses.tool_ops import fix_orphaned_tool_calls
 
 items = fix_orphaned_tool_calls(items)
 ```

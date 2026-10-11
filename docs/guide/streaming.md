@@ -48,10 +48,10 @@ sequenceDiagram
 使用 `stream_response_from_provider()` 将提供方原生数据块转换为 IR 事件：
 
 ```python
-from llm_rosetta import OpenAIChatConverter
+from llm_rosetta import ChatCompletionsConverter
 from llm_rosetta.converters.base import StreamContext
 
-converter = OpenAIChatConverter()
+converter = ChatCompletionsConverter()
 ctx = StreamContext()
 
 for chunk in provider_stream:
@@ -66,10 +66,10 @@ for chunk in provider_stream:
 使用 `stream_response_to_provider()` 将 IR 事件转换回目标提供方格式：
 
 ```python
-from llm_rosetta import AnthropicConverter
+from llm_rosetta import MessagesConverter
 from llm_rosetta.converters.base import StreamContext
 
-target = AnthropicConverter()
+target = MessagesConverter()
 target_ctx = StreamContext()
 
 for ir_event in ir_events:
@@ -188,11 +188,11 @@ finish = ctx.pop_pending_finish()  # 返回 dict 并清空缓冲
 完整示例：将 OpenAI Chat SSE → IR → Anthropic SSE：
 
 ```python
-from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 from llm_rosetta.converters.base import StreamContext
 
-source = OpenAIChatConverter()
-target = AnthropicConverter()
+source = ChatCompletionsConverter()
+target = MessagesConverter()
 from_ctx = StreamContext()
 to_ctx = StreamContext()
 

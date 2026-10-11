@@ -8,20 +8,20 @@ title: 提供方参考
 
 | 提供方 | Shim | 基础类型 | 备注 |
 |:-------|:-----|:---------|:-----|
-| [OpenAI](openai.md) | `openai` | `openai_chat` | Chat Completions API |
-| [Anthropic](anthropic.md) | `anthropic` | `anthropic` | Messages API |
-| [Google](google.md) | `google` | `google_generate` | generateContent API |
-| [DeepSeek](deepseek.md) | `deepseek` | `openai_chat` | OpenAI 兼容 |
-| [Moonshot](moonshot.md) | `moonshot` | `openai_chat` | OpenAI 兼容 |
-| [Qwen](qwen.md) | `qwen` | `openai_chat` | OpenAI 兼容 |
-| [xAI](xai.md) | `xai` | `openai_chat` | OpenAI 兼容 |
-| [Zhipu](zhipu.md) | `zhipu` | `openai_chat` | OpenAI 兼容 |
-| [Volcengine](volcengine.md) | `volcengine` | `openai_chat` | 字段转换 |
-| [OpenRouter](openrouter.md) | `openrouter` | `openai_chat` | 多模型路由 |
-| [MiniMax](minimax.md) | `minimax` | `openai_chat` | OpenAI 兼容 |
-| [Argo](argo.md) | `argo-*` | `openai_chat` | 阿贡内部网关 |
+| [OpenAI](openai.md) | `openai--chat_completions` | `chat_completions` | Chat Completions API |
+| [Anthropic](anthropic.md) | `anthropic--messages` | `messages` | Messages API |
+| [Google](google.md) | `google--google_generate` | `google_generate` | generateContent API |
+| [DeepSeek](deepseek.md) | `deepseek--chat_completions` | `chat_completions` | OpenAI 兼容 |
+| [Moonshot](moonshot.md) | `moonshot` | `chat_completions` | OpenAI 兼容 |
+| [Qwen](qwen.md) | `qwen` | `chat_completions` | OpenAI 兼容 |
+| [xAI](xai.md) | `xai` | `chat_completions` | OpenAI 兼容 |
+| [Zhipu](zhipu.md) | `zhipu` | `chat_completions` | OpenAI 兼容 |
+| [Volcengine](volcengine.md) | `volcengine--chat_completions` | `chat_completions` | 字段转换 |
+| [OpenRouter](openrouter.md) | `openrouter--chat_completions` | `chat_completions` | 多模型路由 |
+| [MiniMax](minimax.md) | `minimax--chat_completions` | `chat_completions` | OpenAI 兼容 |
+| [Argo](argo.md) | `argo--*` | `chat_completions` | 阿贡内部网关 |
 | [AskSage](asksage.md) | `asksage--*` | 多种 | 多格式聚合器 |
-| [ALCF](alcf.md) | `alcf--*` | `openai_chat` | Globus OAuth, token_command |
-| [Kilo](kilo.md) | `kilo--openai_chat` | `openai_chat` | 免费池，keyless |
+| [ALCF](alcf.md) | `alcf--*` | `chat_completions` | Globus OAuth, token_command |
+| [Kilo](kilo.md) | `kilo--chat_completions` | `chat_completions` | 免费池，keyless |
 
 关于 shim 的通用概念和自定义 shim 注册，请参阅[提供方 Shims](../shims.md)。

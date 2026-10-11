@@ -6,19 +6,19 @@ OpenRouter 通过两个 shim 端点提供支持，可以使用 OpenAI Chat Compl
 
 | Shim 名称 | 基础类型 | 默认 Base URL | API Key 环境变量 |
 |:---|:---|:---|:---|
-| `openrouter--openai_chat` | `openai_chat` | `https://openrouter.ai/api/v1` | `OPENROUTER_API_KEY` |
-| `openrouter--anthropic` | `anthropic` | `https://openrouter.ai/api` | `OPENROUTER_API_KEY` |
+| `openrouter--chat_completions` | `chat_completions` | `https://openrouter.ai/api/v1` | `OPENROUTER_API_KEY` |
+| `openrouter--messages` | `messages` | `https://openrouter.ai/api` | `OPENROUTER_API_KEY` |
 
 ## 推理支持
 
-**Chat Completions (`openrouter--openai_chat`)：**
+**Chat Completions (`openrouter--chat_completions`)：**
 
 | 字段 | 值 |
 |:---|:---|
 | Effort 字段 | `reasoning_effort` |
 | Effort 范围 | `low` → `xhigh` |
 
-**Anthropic (`openrouter--anthropic`)：**
+**Anthropic (`openrouter--messages`)：**
 
 | 字段 | 值 |
 |:---|:---|
@@ -30,8 +30,8 @@ OpenRouter 通过两个 shim 端点提供支持，可以使用 OpenAI Chat Compl
 
 | Shim | 类型 | 转换 | 用途 |
 |:---|:---|:---|:---|
-| `openrouter--openai_chat` | Pre-IR | `rename_reasoning()` | 将 `message.reasoning` 重命名为 `message.reasoning_content` 以匹配 OpenRouter 的字段命名 |
-| `openrouter--anthropic` | IR | `auto_cache_breakpoints()` | 插入缓存断点以支持 prompt 缓存 |
+| `openrouter--chat_completions` | Pre-IR | `rename_reasoning()` | 将 `message.reasoning` 重命名为 `message.reasoning_content` 以匹配 OpenRouter 的字段命名 |
+| `openrouter--messages` | IR | `auto_cache_breakpoints()` | 插入缓存断点以支持 prompt 缓存 |
 | 两者 | IR | `hoist_late_system_messages()` | 将靠后的系统消息移至对话开头 |
 
 ## 网关配置
@@ -42,7 +42,7 @@ OpenRouter 通过两个 shim 端点提供支持，可以使用 OpenAI Chat Compl
     {
       "providers": {
         "openrouter": {
-          "shim": "openrouter--openai_chat",
+          "shim": "openrouter--chat_completions",
           "api_key": "${OPENROUTER_API_KEY}"
         }
       }
@@ -55,7 +55,7 @@ OpenRouter 通过两个 shim 端点提供支持，可以使用 OpenAI Chat Compl
     {
       "providers": {
         "openrouter-anthropic": {
-          "shim": "openrouter--anthropic",
+          "shim": "openrouter--messages",
           "api_key": "${OPENROUTER_API_KEY}"
         }
       }

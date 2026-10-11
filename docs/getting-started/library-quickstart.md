@@ -9,7 +9,7 @@ title: 库快速开始
 最简用法：一个 dict 进去，另一个 dict 出来。不需要 API key，不需要 SDK，不走网络。
 
 ```python
-from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 
 # 将 OpenAI 请求 dict 转换为 Anthropic 请求 dict
 openai_request = {
@@ -17,8 +17,8 @@ openai_request = {
     "messages": [{"role": "user", "content": "Hello!"}],
 }
 
-ir = OpenAIChatConverter().request_from_provider(openai_request)
-anthropic_request, warnings = AnthropicConverter().request_to_provider(ir)
+ir = ChatCompletionsConverter().request_from_provider(openai_request)
+anthropic_request, warnings = MessagesConverter().request_to_provider(ir)
 
 print(anthropic_request)
 # {'model': 'gpt-4o', 'messages': [{'role': 'user', 'content': [{'type': 'text', 'text': 'Hello!'}]}], ...}
@@ -31,10 +31,10 @@ print(anthropic_request)
 带系统消息、生成参数和多轮对话的完整例子：
 
 ```python
-from llm_rosetta import OpenAIChatConverter, AnthropicConverter
+from llm_rosetta import ChatCompletionsConverter, MessagesConverter
 
-openai_conv = OpenAIChatConverter()
-anthropic_conv = AnthropicConverter()
+openai_conv = ChatCompletionsConverter()
+anthropic_conv = MessagesConverter()
 
 openai_request = {
     "model": "gpt-4o",
@@ -76,7 +76,7 @@ from llm_rosetta import detect_provider, convert
 provider = detect_provider(some_request)
 
 # 一步完成转换
-converted = convert(some_request, target_provider="anthropic")
+converted = convert(some_request, target_provider="messages")
 ```
 
 ## 下一步

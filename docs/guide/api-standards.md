@@ -10,14 +10,14 @@ LLM-Rosetta 支持 4 家 LLM 提供方的 6 种 API 标准，各自有不同的�
 
 | ProviderType | API 标准 | 端点 | 转换器类 |
 |---|---|---|---|
-| `openai_chat` | OpenAI Chat Completions | `POST /v1/chat/completions` | `OpenAIChatConverter` |
-| `openai_responses` | OpenAI Responses | `POST /v1/responses` | `OpenAIResponsesConverter` |
+| `chat_completions` | OpenAI Chat Completions | `POST /v1/chat/completions` | `ChatCompletionsConverter` |
+| `openai--open_responses` | OpenAI Responses | `POST /v1/responses` | `OpenAIResponsesConverter` |
 | `open_responses` | Open Responses | `POST /v1/responses` | `OpenResponsesConverter` |
-| `anthropic` | Anthropic Messages | `POST /v1/messages` | `AnthropicConverter` |
-| `google` | Google GenAI | `POST /v1beta/models/{model}:generateContent` | `GoogleConverter` |
+| `messages` | Anthropic Messages | `POST /v1/messages` | `MessagesConverter` |
+| `google_generate` | Google GenAI | `POST /v1beta/models/{model}:generateContent` | `GoogleGenerateConverter` |
 | `google_interactions` | Google Interactions | `POST /v1beta/interactions` | `GoogleInteractionsConverter` |
 
-## OpenAI Chat Completions (`openai_chat`)
+## OpenAI Chat Completions (`chat_completions`)
 
 最广泛采用的 LLM API 标准。使用基于角色的消息数组，响应以 `choices[]` 数组返回。
 
@@ -59,7 +59,7 @@ LLM-Rosetta 支持 4 家 LLM 提供方的 6 种 API 标准，各自有不同的�
 - **不支持** `top_k`
 - 流式传输通过 `"stream": true` 启用，SSE `data: {...}` 分块
 
-## OpenAI Responses (`openai_responses`)
+## OpenAI Responses (`openai--open_responses`)
 
 OpenAI 较新的 API 格式（2025 年）。使用扁平的类型化项目列表代替嵌套消息，支持有状态的服务端对话。
 
@@ -127,7 +127,7 @@ OpenAI 较新的 API 格式（2025 年）。使用扁平的类型化项目列表
 
 **采用者：** OpenRouter、Hugging Face、Vercel、LM Studio、Ollama、vLLM。
 
-## Anthropic Messages (`anthropic`)
+## Anthropic Messages (`messages`)
 
 Anthropic 为 Claude 模型设计的原生 API。以必需的 `max_tokens`、支持 `top_k` 和扩展思考为特色。
 
@@ -169,7 +169,7 @@ Anthropic 为 Claude 模型设计的原生 API。以必需的 `max_tokens`、支
 - 扩展思考：`"thinking": {"type": "enabled", "budget_tokens": 10000}`
 - 认证通过 `x-api-key` 头部（非 `Authorization: Bearer`）
 
-## Google GenAI (`google`)
+## Google GenAI (`google_generate`)
 
 Google 为 Gemini 模型设计的生成式 AI API。使用 `contents[]` 代替 `messages[]`，使用 `parts[]` 代替 `content`。
 
@@ -245,9 +245,9 @@ Google 为 Gemini 模型设计的生成式 AI API。使用 `contents[]` 代替 `
 
 ```jsonc
 "providers": {
-  "my-openai":    { "type": "openai_chat",      "api_key": "...", "base_url": "..." },
-  "my-anthropic": { "type": "anthropic",         "api_key": "...", "base_url": "..." },
-  "my-google":    { "type": "google",            "api_key": "...", "base_url": "..." }
+  "my-openai":    { "type": "chat_completions",      "api_key": "...", "base_url": "..." },
+  "my-anthropic": { "type": "messages",         "api_key": "...", "base_url": "..." },
+  "my-google":    { "type": "google_generate",            "api_key": "...", "base_url": "..." }
 }
 ```
 

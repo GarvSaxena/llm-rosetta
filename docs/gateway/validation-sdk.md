@@ -66,10 +66,10 @@ python -m pytest tests/integration/test_anthropic_rest_e2e.py -v
 | CLI 工具 | API 格式 | 源 → 目标 | 对话 | 流式 | 工具调用 | 多轮 |
 |---------|---------|----------|:----:|:----:|:------:|:----:|
 | [Codex CLI](https://github.com/openai/codex) | OpenAI Responses | 透传 | ✓ | ✓ | ✓ | ✓ |
-| [Kilo Code](https://kilocode.ai/) | OpenAI Chat | `openai_chat` → `openai_responses` | ✓ | ✓ | ✓ | ✓ |
-| [OpenCode](https://opencode.ai/) | OpenAI Chat | `openai_chat` → `openai_responses` | ✓ | ✓ | ✓ | ✓ |
+| [Kilo Code](https://kilocode.ai/) | OpenAI Chat | `chat_completions` → `open_responses` | ✓ | ✓ | ✓ | ✓ |
+| [OpenCode](https://opencode.ai/) | OpenAI Chat | `chat_completions` → `open_responses` | ✓ | ✓ | ✓ | ✓ |
 | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | Anthropic Messages | 透传 | ✓ | ✓ | ✓ | ✓ |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | Google GenAI | `google` → `openai_chat` | ✓ | ✓ | ✓ | ✓ |
+| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | Google GenAI | `google_generate` → `chat_completions` | ✓ | ✓ | ✓ | ✓ |
 
 ---
 
