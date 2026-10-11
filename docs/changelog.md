@@ -37,6 +37,8 @@ All notable changes to LLM-Rosetta are documented here. This project follows [Ke
 
 ### Changed (**breaking**)
 
+- **(breaking) `tool_ops` provider names standardized** (issue [#921](https://github.com/Oaklight/llm-rosetta/issues/921), epic [#905](https://github.com/Oaklight/llm-rosetta/issues/905)): the `tool_ops` convenience API now uses the **base converter types** as its canonical provider names — `anthropic`, `google_generate`, `google_interactions`, `chat_completions`, `open_responses`. Every previous spelling (`openai_chat`, `openai_responses`, `google`, `openai-chat`, `openai-responses`, `open-responses`, `google-genai`, `google-generate`, `chat-completions`, …) still resolves but emits a `DeprecationWarning` and is removed in **0.16.0** ([#919](https://github.com/Oaklight/llm-rosetta/issues/919)). Migration: `tool_ops.to_provider(tool, provider="openai-chat")` → `provider="chat_completions"`.
+
 - **Gateway module reorganization** (PRs [#739](https://github.com/Oaklight/llm-rosetta/pull/739), [#738](https://github.com/Oaklight/llm-rosetta/pull/738), [#744](https://github.com/Oaklight/llm-rosetta/pull/744)): backend files moved into `gateway/middleware/` and `gateway/pipelines/` subpackages; admin JS into `js/core/`, `js/tabs/`, `js/components/`. **Old flat import paths (`gateway.auth`, `gateway.embeddings`, etc.) no longer work** — use `gateway.middleware.*` / `gateway.pipelines.*`. See `argo-proxy` [#179](https://github.com/Oaklight/argo-proxy/pull/179) for migration.
 
 ### Changed
