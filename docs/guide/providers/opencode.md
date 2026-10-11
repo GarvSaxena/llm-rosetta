@@ -19,7 +19,7 @@ OpenCode 的付费服务是同一个凭据下的两条通道，只有 base URL �
 | Shim 名称 | Base 类型 | 默认 Base URL | 凭据 |
 |:---|:---|:---|:---|
 | `opencode--chat_completions` | `chat_completions` | `https://opencode.ai/zen/go/v1` | `OPENCODE_API_KEY` |
-| `opencode--anthropic` | `anthropic` | `https://opencode.ai/zen/go/v1` | `OPENCODE_API_KEY` |
+| `opencode--messages` | `messages` | `https://opencode.ai/zen/go/v1` | `OPENCODE_API_KEY` |
 | `opencode--open_responses` | `open_responses` | `https://opencode.ai/zen/go/v1` | `OPENCODE_API_KEY` |
 
 三者分别解析到 base 下各自格式的路径：`/chat/completions`、`/messages`
