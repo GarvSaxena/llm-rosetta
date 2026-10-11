@@ -37,6 +37,8 @@ All notable changes to LLM-Rosetta are documented here. This project follows [Ke
 
 ### 变更（**破坏性变更**）
 
+- **（破坏性）`tool_ops` provider 名规范化** (issue [#921](https://github.com/Oaklight/llm-rosetta/issues/921), epic [#905](https://github.com/Oaklight/llm-rosetta/issues/905))：`tool_ops` 便利 API 现以 **base converter 类型**作为规范 provider 名——`anthropic`、`google_generate`、`google_interactions`、`chat_completions`、`open_responses`。此前所有写法（`openai_chat`、`openai_responses`、`google`、`openai-chat`、`openai-responses`、`open-responses`、`google-genai`、`google-generate`、`chat-completions` 等）仍可用但会发出 `DeprecationWarning`，并在 **0.16.0** 移除（[#919](https://github.com/Oaklight/llm-rosetta/issues/919)）。迁移：`tool_ops.to_provider(tool, provider="openai-chat")` → `provider="chat_completions"`。
+
 - **Gateway 模块重组** (PRs [#739](https://github.com/Oaklight/llm-rosetta/pull/739), [#738](https://github.com/Oaklight/llm-rosetta/pull/738), [#744](https://github.com/Oaklight/llm-rosetta/pull/744))：后端文件移入 `gateway/middleware/` 和 `gateway/pipelines/` 子包；admin JS 移入 `js/core/`、`js/tabs/`、`js/components/`。**旧的扁平 import 路径（`gateway.auth`、`gateway.embeddings` 等）不再有效**——请使用 `gateway.middleware.*` / `gateway.pipelines.*`。参见 `argo-proxy` [#179](https://github.com/Oaklight/argo-proxy/pull/179) 的迁移。
 
 ### 变更
