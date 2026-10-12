@@ -125,6 +125,8 @@ Argo 代理请求到上游提供方，但会进行自己的参数校验。Anthro
 
 LLM-Rosetta 在 IR 转换时将签名存储在各内容块的 `provider_metadata` 中。Anthropic converter 将 `provider_metadata` 序列化为 `thinking`、`tool_use`、`tool_result` 和 `text` 块上的 `_provider_metadata` 字段（[PR #257](https://github.com/Oaklight/llm-rosetta/pull/257)、[PR #263](https://github.com/Oaklight/llm-rosetta/pull/263)）。
 
+`_provider_metadata` 只是进程内的载体，没有任何 provider 会在线上接受它。`request_to_provider`、`response_to_provider` 和 `messages_to_provider` 会把它从输出中剥离（[#941](https://github.com/Oaklight/llm-rosetta/issues/941)），因此返回的 body 可直接发送给 provider。ops 层的 `ir_*_to_p` / `p_*_to_ir` 函数则保留它——签名能穿过 `IR → provider B → IR` 靠的正是这一点。
+
 ## 未签名推理块
 
 部分客户端发送的对话历史中包含没有有效签名的 `thinking` 块。这种情况出现在：
