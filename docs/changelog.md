@@ -41,6 +41,16 @@ All notable changes to LLM-Rosetta are documented here. This project follows [Ke
 
 ### 变更（**破坏性变更**）
 
+- **（破坏性）Google SDK 形态把 `system_instruction` 移入 `config`** (issue [#936](https://github.com/Oaklight/llm-rosetta/issues/936))：`GoogleGenerateConverter` 在 `output_format="sdk"`（默认值，也是 `convert()` / `convert_response()` 返回的形态）下此前会输出 `{"model", "contents", "config", "system_instruction"}`。这个顶层键让该字典无法按文档所述的方式使用：`client.models.generate_content(**body)` 在从 1.0.0 到 2.29.0 的所有 `google-genai` 版本上都会抛 `TypeError: unexpected keyword argument 'system_instruction'`，因为 `Models.generate_content()` 只接受 `model`、`contents` 和 `config`；而绕过它、只传这三个参数会让 system instruction 静默地从请求里消失。现在该形态**正好就是** `generate_content` 的关键字参数，指令位于 `config` 内部——那才是 `GenerateContentConfig` 声明它的位置，也是 `llm_rosetta.types.google.GenerateContentRequest` 早已记录的形态。`request_from_provider` 两种位置都能读取。REST 形态（`output_format="rest"`，即 gateway 路径）逐字节不变。
+
+  **迁移：** 读取 `convert()` / `convert_response()` / `request_to_provider(output_format="sdk")` 的输出时，把 `body["system_instruction"]` 改为 `body["config"]["system_instruction"]`。
+
+  | 变更前 | 变更后 |
+  |--------|--------|
+  | `{"model", "contents", "config", "system_instruction"}` | `{"model", "contents", "config": {"system_instruction": …}}` |
+
+  此前会抛 `TypeError` 的 `generate_content(**body)` 调用现在可以直接工作，且 system instruction 会真正送达模型。
+
 - **（破坏性）`tool_ops` provider 名规范化** (issue [#921](https://github.com/Oaklight/llm-rosetta/issues/921), epic [#905](https://github.com/Oaklight/llm-rosetta/issues/905))：`tool_ops` 便利 API 现以 **base converter 类型**作为规范 provider 名——`anthropic`、`google_generate`、`google_interactions`、`chat_completions`、`open_responses`。此前所有写法（`openai_chat`、`openai_responses`、`google`、`openai-chat`、`openai-responses`、`open-responses`、`google-genai`、`google-generate`、`chat-completions` 等）仍可用但会发出 `DeprecationWarning`，并在 **0.16.0** 移除（[#919](https://github.com/Oaklight/llm-rosetta/issues/919)）。迁移：`tool_ops.to_provider(tool, provider="openai-chat")` → `provider="chat_completions"`。
 
 - **Gateway 模块重组** (PRs [#739](https://github.com/Oaklight/llm-rosetta/pull/739), [#738](https://github.com/Oaklight/llm-rosetta/pull/738), [#744](https://github.com/Oaklight/llm-rosetta/pull/744))：后端文件移入 `gateway/middleware/` 和 `gateway/pipelines/` 子包；admin JS 移入 `js/core/`、`js/tabs/`、`js/components/`。**旧的扁平 import 路径（`gateway.auth`、`gateway.embeddings` 等）不再有效**——请使用 `gateway.middleware.*` / `gateway.pipelines.*`。参见 `argo-proxy` [#179](https://github.com/Oaklight/argo-proxy/pull/179) 的迁移。

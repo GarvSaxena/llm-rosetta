@@ -213,7 +213,7 @@ Google 为 Gemini 模型设计的生成式 AI API。使用 `contents[]` 代替 `
 
 **关键特征：**
 
-- 系统指令通过顶层 `"system_instruction"` 字段
+- 系统指令通过顶层 `"system_instruction"` 字段——这是 **REST wire** 形态；在交给 Python SDK 时，转换器会把同一个值嵌在 `config.system_instruction` 中，因为那才是 `GenerateContentConfig` 声明的字段
 - 消息为 `"contents"`，内容块为 `"parts"`
 - 助手角色为 `"model"`（非 `"assistant"`）
 - 工具调用为 `functionCall` 部分；参数为**字典**
