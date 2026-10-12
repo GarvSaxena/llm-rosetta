@@ -125,6 +125,8 @@ When routing between providers (e.g. Anthropic client → Google backend), signa
 
 LLM-Rosetta achieves this by storing signatures in `provider_metadata` on each content part during IR conversion. The Anthropic converter serializes `provider_metadata` as `_provider_metadata` on `thinking`, `tool_use`, `tool_result`, and `text` blocks ([PR #257](https://github.com/Oaklight/llm-rosetta/pull/257), [PR #263](https://github.com/Oaklight/llm-rosetta/pull/263)).
 
+The `_provider_metadata` key is an in-process device only — no provider accepts it on the wire. `request_to_provider`, `response_to_provider`, and `messages_to_provider` strip it from their output ([#941](https://github.com/Oaklight/llm-rosetta/issues/941)), so the returned body is wire-ready and can be sent to a provider directly. The ops-level `ir_*_to_p` / `p_*_to_ir` functions keep it, which is what preserves a signature across `IR → provider B → IR`.
+
 ## Unsigned Reasoning Blocks
 
 Some clients send conversation history containing `thinking` blocks without valid signatures. This happens when:
