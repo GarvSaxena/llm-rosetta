@@ -552,12 +552,12 @@ The gateway can proxy `/v1/decision` and `/v1/systemone` requests for probabilis
 ```jsonc
 {
   "decision_providers": {
-    "jev-prod": { "type": "typesafe_decision", "api_key": "${JEV_API_KEY}", "base_url": "https://api.typesafe.ai" }
+    "jev-prod": { "type": "typesafe", "api_key": "${JEV_API_KEY}", "base_url": "https://api.typesafe.ai" }
   },
   "decision_models": {
     "jev-1": "jev-prod"
   },
-  "default_decision_format": "typesafe_decision"
+  "default_decision_format": "systemone"
 }
 ```
 
@@ -565,7 +565,7 @@ The gateway can proxy `/v1/decision` and `/v1/systemone` requests for probabilis
 |-------|------|---------|-------------|
 | `decision_providers` | `dict` | `{}` | Provider configs for decision upstreams |
 | `decision_models` | `dict` | `{}` | Model → provider mapping for decision requests |
-| `default_decision_format` | `str` | `"typesafe_decision"` | Source format fallback |
+| `default_decision_format` | `str` | `"systemone"` | Source format fallback |
 
 ## Full Example
 

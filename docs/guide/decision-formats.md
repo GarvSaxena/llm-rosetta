@@ -12,7 +12,7 @@ LLM-Rosetta currently supports **2 format families** for decision APIs, with mor
 
 | Format Family | Provider | Endpoint | Converter Class |
 |--------------|----------|----------|-----------------|
-| TypeSafe System One | TypeSafe AI (Jev) | `POST /v1/systemone` | `TypeSafeDecisionConverter` |
+| System One | TypeSafe AI (Jev) | `POST /v1/systemone` | `SystemOneDecisionConverter` |
 | OpenAI Decisions | OpenAI | `POST /v1/decisions` | `OpenAIDecisionsConverter` |
 
 ## Key Concepts
@@ -21,7 +21,7 @@ LLM-Rosetta currently supports **2 format families** for decision APIs, with mor
 
 Decision APIs use typed questions with constrained answer spaces:
 
-| IR Type | TypeSafe Wire Name | Proposition | Input | Output |
+| IR Type | System One Wire Name | Proposition | Input | Output |
 |---------|-------------------|-------------|-------|--------|
 | `assertion` | `noul` | proposition | Yes/no claim + optional criteria | P(true) ∈ [0, 1] |
 | `choice` | `choice` | categorical proposition | Options with descriptions | Selected option + probability distribution |
@@ -31,7 +31,7 @@ Decision APIs use typed questions with constrained answer spaces:
     The three IR primitives are named for the kind of proposition they evaluate:
     `assertion` (**proposition**), `choice` (**categorical proposition**), and
     `score` (**ordinal proposition**).  The IR name `assertion` is translated to
-    the TypeSafe wire name `noul` by `TypeSafeDecisionConverter`.
+    the System One wire name `noul` by `SystemOneDecisionConverter`.
 
 ### Entries
 
@@ -70,7 +70,7 @@ state = {
 ### Multimodal (`images[]`)
 
 The System One family (Cloudflare Clef, classifier.dev) extends the request with
-a top-level `images` array of inline base64 data URLs. `TypeSafeDecisionConverter`
+a top-level `images` array of inline base64 data URLs. `SystemOneDecisionConverter`
 maps it to the IR `state` content parts — text parts join into `state`, image
 parts become `images` (and back on ingest):
 
@@ -283,9 +283,9 @@ response: IRDecisionResponse = {
 ## Using the Converter
 
 ```python
-from llm_rosetta.converters.decision import TypeSafeDecisionConverter
+from llm_rosetta.converters.decision import SystemOneDecisionConverter
 
-converter = TypeSafeDecisionConverter()
+converter = SystemOneDecisionConverter()
 
 # TypeSafe wire → IR
 ir_request = converter.request_from_provider(typesafe_request)
@@ -302,10 +302,10 @@ The gateway registers three routes for decision requests:
 
 - `POST /v1/decision` — canonical route
 - `POST /v1/decisions` — OpenAI-compatible alias
-- `POST /v1/systemone` — TypeSafe-compatible alias
+- `POST /v1/systemone` — System One-compatible alias
 
-!!! warning "Phase 1 limitation"
-    Gateway decision routing (`resolve_decision` / `decision_models` in config) is not yet implemented. Both routes currently return 501. This will be added when provider routing for the decision paradigm is wired into `GatewayConfig`.
+!!! note "Provider routing"
+    The gateway resolves the upstream provider for a decision request from `decision_models` (`GatewayConfig.resolve_decision`) and detects the source format per request — see the Changelog for the detection order.
 
 ## Comparison with Chat Structured Output
 
