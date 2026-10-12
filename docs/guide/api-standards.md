@@ -213,7 +213,7 @@ Google's Generative AI API for Gemini models. Uses `contents[]` instead of `mess
 
 **Key characteristics:**
 
-- System instructions via top-level `"system_instruction"` field
+- System instructions via top-level `"system_instruction"` field — that is the **REST wire** form; in the Python SDK handoff the converter nests the same value in `config.system_instruction`, which is where `GenerateContentConfig` declares it
 - Messages are `"contents"`, content blocks are `"parts"`
 - Assistant role is `"model"` (not `"assistant"`)
 - Tool calls are `functionCall` parts; arguments are **dicts**

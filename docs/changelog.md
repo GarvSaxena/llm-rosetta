@@ -41,6 +41,16 @@ All notable changes to LLM-Rosetta are documented here. This project follows [Ke
 
 ### Changed (**breaking**)
 
+- **(breaking) Google SDK shape moved `system_instruction` into `config`** (issue [#936](https://github.com/Oaklight/llm-rosetta/issues/936)): `GoogleGenerateConverter` with `output_format="sdk"` (the default, and what `convert()` / `convert_response()` return) emitted `{"model", "contents", "config", "system_instruction"}`. That top-level key made the dict unusable the way it was documented: `client.models.generate_content(**body)` raises `TypeError: unexpected keyword argument 'system_instruction'` on every `google-genai` version from 1.0.0 to 2.29.0, because `Models.generate_content()` takes only `model`, `contents` and `config` — and working around it by passing just those three silently dropped the system instruction from the wire. The shape is now exactly the `generate_content` keyword arguments, with the instruction inside `config`, where `GenerateContentConfig` declares it and where `llm_rosetta.types.google.GenerateContentRequest` already documented it. `request_from_provider` reads either placement. The REST shape (`output_format="rest"`, the gateway path) is unchanged byte for byte.
+
+  **Migration:** for `convert()` / `convert_response()` / `request_to_provider(output_format="sdk")` output, read `body["system_instruction"]` as `body["config"]["system_instruction"]`.
+
+  | Before | After |
+  |--------|-------|
+  | `{"model", "contents", "config", "system_instruction"}` | `{"model", "contents", "config": {"system_instruction": …}}` |
+
+  A `generate_content(**body)` call that previously raised `TypeError` now works as written, and the system instruction reaches the model.
+
 - **(breaking) `tool_ops` provider names standardized** (issue [#921](https://github.com/Oaklight/llm-rosetta/issues/921), epic [#905](https://github.com/Oaklight/llm-rosetta/issues/905)): the `tool_ops` convenience API now uses the **base converter types** as its canonical provider names — `anthropic`, `google_generate`, `google_interactions`, `chat_completions`, `open_responses`. Every previous spelling (`openai_chat`, `openai_responses`, `google`, `openai-chat`, `openai-responses`, `open-responses`, `google-genai`, `google-generate`, `chat-completions`, …) still resolves but emits a `DeprecationWarning` and is removed in **0.16.0** ([#919](https://github.com/Oaklight/llm-rosetta/issues/919)). Migration: `tool_ops.to_provider(tool, provider="openai-chat")` → `provider="chat_completions"`.
 
 - **Gateway module reorganization** (PRs [#739](https://github.com/Oaklight/llm-rosetta/pull/739), [#738](https://github.com/Oaklight/llm-rosetta/pull/738), [#744](https://github.com/Oaklight/llm-rosetta/pull/744)): backend files moved into `gateway/middleware/` and `gateway/pipelines/` subpackages; admin JS into `js/core/`, `js/tabs/`, `js/components/`. **Old flat import paths (`gateway.auth`, `gateway.embeddings`, etc.) no longer work** — use `gateway.middleware.*` / `gateway.pipelines.*`. See `argo-proxy` [#179](https://github.com/Oaklight/argo-proxy/pull/179) for migration.

@@ -66,9 +66,11 @@ ir_request = openai_conv.request_from_provider(openai_request)
 
 # IR → Google
 google_request, warnings = google_conv.request_to_provider(ir_request)
+# google_request is {"model", "contents", "config"} — exactly the
+# client.models.generate_content() keyword arguments
 
 # Call Google API, get response
-google_response = google_client.generate_content(**google_request)
+google_response = client.models.generate_content(**google_request)
 
 # Google response → IR
 ir_response = google_conv.response_from_provider(google_response)
@@ -115,23 +117,32 @@ Fields specific to the Interactions API are preserved via `provider_extensions`:
 
 ## Google: SDK vs REST API Output
 
-By default, the Google converter produces a dict with a nested `config` key designed for the Google GenAI Python SDK (`google.genai`). If you are calling the Google REST API directly (e.g. via `httpx` or `requests`), pass `output_format="rest"` to get a flattened body ready for the HTTP request:
+By default, the Google converter produces a dict that is exactly the `client.models.generate_content()` keyword arguments — `model`, `contents` and `config` — designed for the Google GenAI Python SDK (`google.genai`). If you are calling the Google REST API directly (e.g. via `httpx` or `requests`), pass `output_format="rest"` to get a flattened body ready for the HTTP request:
 
 ```python
 from llm_rosetta import GoogleGenerateConverter
 
 google_conv = GoogleGenerateConverter()
 
-# SDK format (default) — for google.genai SDK
+# SDK format (default) — splat it straight into the google.genai client
 sdk_request, warnings = google_conv.request_to_provider(ir_request)
-# sdk_request has: {"contents": [...], "config": {"tools": [...], "temperature": 0.7, ...}}
+# sdk_request: {"model": ...,
+#               "contents": [...],
+#               "config": {"tools": [...], "temperature": 0.7,
+#                          "system_instruction": {...}, ...}}
+google_response = client.models.generate_content(**sdk_request)
 
 # REST format — for direct HTTP calls
 rest_body, warnings = google_conv.request_to_provider(ir_request, output_format="rest")
-# rest_body has: {"contents": [...], "tools": [...], "generationConfig": {"temperature": 0.7, ...}}
+# rest_body: {"contents": [...],
+#             "tools": [...],
+#             "system_instruction": {...},
+#             "generationConfig": {"temperature": 0.7, ...}}
 ```
 
-The `"rest"` format lifts `tools`, `tool_config`, `response_mime_type`, and `response_schema` to the top level, and wraps generation parameters (temperature, top_p, etc.) into a `generationConfig` object — matching the [Google Gemini REST API](https://ai.google.dev/api/generate-content) schema.
+The `"rest"` format lifts `tools`, `tool_config`, `system_instruction`, `response_mime_type`, and `response_schema` to the top level, and wraps generation parameters (temperature, top_p, etc.) into a `generationConfig` object — matching the [Google Gemini REST API](https://ai.google.dev/api/generate-content) schema.
+
+The two shapes are the same request written two ways. The differences are where a field sits and how it is spelled: `config` versus `generationConfig`, and snake_case versus camelCase. Note in particular that the system instruction lives **inside `config`** in the SDK shape but at the **top level** in the REST shape — the SDK's `GenerateContentConfig` is where it belongs, and `models.generate_content()` accepts no `system_instruction` keyword of its own.
 
 ## Metadata Preservation (Lossless Round-Trip)
 
