@@ -46,6 +46,78 @@ Built-in shims: `openai--chat_completions`, `openai--open_responses`, `anthropic
 
 You can also register custom shims programmatically via `register_shim()`.
 
+### External Shim Sources
+
+Shims need not live inside the package. The top-level `shims` section points the
+gateway at extra directories and at remote archives it fetches into a local
+cache — so a shim set can be maintained in its own repository and consumed
+without installing anything into the gateway image.
+
+```jsonc
+"shims": {
+  // Scanned for <name>/provider.yaml (flat) or <group>/<leaf>/provider.yaml (grouped).
+  // Relative entries are anchored to the directory containing this config file.
+  "paths": ["./local-shims", "../shared/rosetta-shims"],
+
+  "remotes": [
+    {
+      "name": "alcf",                                  // optional; derived from the URL
+      "url": "https://github.com/Oaklight/llm-rosetta-shim-alcf",
+      "ref": "v0.1.0",                                 // optional; see "Ref resolution"
+      "path": "src/llm_rosetta_shim_alcf/providers",   // subpath inside the archive
+      "archive": "auto",                               // auto | tar.gz | zip
+      "sha256": "0123…abcd",                           // optional archive pin
+      "token_env": "GITHUB_TOKEN",                     // optional; private repos
+      "refresh": "auto"                                // auto | always | never
+    }
+  ],
+
+  "cache_dir": "./shims-cache",   // optional; default <config_dir>/shims-cache
+  "remote_ttl": 86400,            // optional; re-fetch interval for unpinned remotes (seconds)
+  "strict": false                 // optional; true => a failed source aborts startup
+}
+```
+
+**Layout.** A directory under `paths` may hold a `provider.yaml` directly
+(`my-provider/provider.yaml`) or group several shims in subdirectories
+(`vendor/messages/provider.yaml`, `vendor/chat_completions/provider.yaml`), the
+same layouts the built-in shims use.
+
+**Remote fetches are git-less.** GitHub repository URLs are rewritten to their
+codeload tarball endpoint; any other host works by giving an explicit archive
+URL (optionally containing `{ref}`), so GitLab and self-hosted forges need no
+per-host code path. Only HTTPS is accepted (loopback may use HTTP).
+
+**Ref resolution.** With `ref` set (a tag, branch, or commit SHA) that ref is
+fetched. With `ref` omitted, `HEAD` is resolved to a concrete commit SHA through
+the host API (GitHub) and recorded in the cache stamp, so later runs reuse the
+same commit; the config file itself is never rewritten. Pin a tag or SHA for
+reproducible deployments.
+
+**Cache and refresh.** Archives are extracted under `cache_dir` (default
+`<config_dir>/shims-cache`, next to the config file). A pinned ref, a `sha256`,
+or `refresh: "never"` is fetched once; `refresh: "always"` always re-fetches;
+the default `auto` re-fetches when the cached copy is older than `remote_ttl`.
+If a fetch fails and a cache exists, the stale cache is used with a warning; the
+source only fails when there is nothing cached.
+
+**Precedence.** On a shim-name collision, later sources win: built-ins, then
+entry-point plugins, then `paths` in order, then `remotes` in order.
+
+**Failure handling.** By default a bad source is logged, reported in the admin
+panel, and skipped — the gateway still starts. Set `shims.strict: true` to abort
+startup instead.
+
+**Programmatic use.** `llm_rosetta.shims.rebuild_shims()` loads directories and
+remotes directly (no config file needed); `llm_rosetta.gateway.apply_shim_sources(raw, config_path)`
+applies a config dict. `create_app` also applies the section automatically.
+
+!!! warning "Declared sources run code"
+    A shim directory may ship a `transforms.py`, which is executed when the shim
+    loads — the same trust level as `pip install`ing a plugin package. Prefer
+    pinning `ref` (and optionally `sha256`), and only add sources you trust.
+    The trust boundary is whoever can edit the config file.
+
 ### Image Count Limits
 
 Shims support `max_images` and `max_images_pattern` fields to enforce per-model image count limits:

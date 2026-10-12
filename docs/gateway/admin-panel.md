@@ -18,6 +18,27 @@ The **Configuration** tab lets you manage providers, models, and server settings
 
 Set a global proxy URL that applies to all providers unless overridden per-provider.
 
+### Shim Sources
+
+The **Settings** tab has a **Shim Sources** section for the top-level `shims`
+config section (see [External Shim Sources](configuration.md#external-shim-sources)).
+It lists the declared **Directories** (one per line), **Remotes** (a JSON
+array) and the remaining knobs — **Cache directory**, **Re-fetch TTL (s)** and
+**Fail startup on a bad source** — and shows a per-source status table:
+`loaded` / `failed`, whether a stale cache was used, the shim count (shim names
+are in the tooltip), the resolved directory and, for remotes, the commit SHA the
+archive was pinned to.
+
+**Save** persists the section and re-applies it; **Reload** re-applies the
+current config; **Refetch** forces every remote to be downloaded again, bypassing
+its cache and `refresh` mode. A source that fails is reported here without
+stopping the gateway.
+
+!!! warning
+    A declared shim directory or archive runs third-party Python
+    (`transforms.py`) at load time. Only add sources you trust, and prefer
+    pinning a tag or commit SHA.
+
 ### Providers
 
 Each provider card shows its name, API standard type (or shim name), base URL, masked API key, optional proxy, and provider logo. When a provider uses a [shim](../guide/shims.md), any active transforms (e.g. `strip_fields("logprobs")`) are also displayed on the card. You can:

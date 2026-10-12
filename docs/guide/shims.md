@@ -153,6 +153,40 @@ def register_shims():
 !!! note
     When a plugin registers a shim with the same name as a built-in, the built-in is silently overridden (INFO log emitted). This is intentional — it allows plugins to customize built-in provider behavior.
 
+### Config-declared directories and remotes
+
+A shim set can also be consumed **without installing a plugin**. The gateway's
+top-level `shims` config section scans extra directories and fetches remote
+archives into a local cache — useful when the official image is used as-is (it
+ships no `pip` and no `git`) and the shims live in their own repository:
+
+```jsonc
+"shims": {
+  "paths": ["/config/shims"],                     // dirs holding <name>/provider.yaml
+  "remotes": [
+    {
+      "url": "https://github.com/Oaklight/llm-rosetta-shim-alcf",
+      "ref": "v0.1.0",                             // pin for reproducibility; omit => HEAD, pinned on first fetch
+      "path": "src/llm_rosetta_shim_alcf/providers",
+      "token_env": "GITHUB_TOKEN"                  // private repos
+    }
+  ]
+}
+```
+
+A remote `path` is the directory inside the archive that holds the provider
+directories (for the `llm-rosetta-shim-*` packages that is
+`src/<package>/providers`). See
+[Gateway → External Shim Sources](../gateway/configuration.md#external-shim-sources)
+for the full field list, caching and refresh behaviour, precedence, and the
+security note. Programmatically, use `llm_rosetta.shims.rebuild_shims()` (no
+config file needed) or `llm_rosetta.gateway.apply_shim_sources(raw, config_path)`.
+
+!!! warning
+    A declared source may ship a `transforms.py` that is executed on load — the
+    same trust level as installing a plugin package. Pin a ref and only add
+    sources you trust.
+
 ## Built-in Shims
 
 LLM-Rosetta ships with 16 built-in provider shims:
