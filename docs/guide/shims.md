@@ -151,6 +151,36 @@ def register_shims():
 !!! note
     当插件注册了与内置同名的 shim 时，内置 shim 会被静默覆盖（输出 INFO 日志）。这是有意设计——允许插件定制内置提供方的行为。
 
+### 配置声明的目录与远程源
+
+一套 shim 也可以**无需安装插件**就被消费。gateway 的顶层 `shims` 配置段会扫描额外目录，
+并把远程归档拉取到本地缓存 —— 这在直接使用官方镜像（既没有 `pip` 也没有 `git`）而 shim
+维护在独立仓库时特别有用：
+
+```jsonc
+"shims": {
+  "paths": ["/config/shims"],                     // 存放 <name>/provider.yaml 的目录
+  "remotes": [
+    {
+      "url": "https://github.com/Oaklight/llm-rosetta-shim-alcf",
+      "ref": "v0.1.0",                             // 固定版本以可复现；省略则取 HEAD，首次拉取时固化
+      "path": "src/llm_rosetta_shim_alcf/providers",
+      "token_env": "GITHUB_TOKEN"                  // 私有仓库
+    }
+  ]
+}
+```
+
+远程源的 `path` 是归档内存放提供方目录的路径（对 `llm-rosetta-shim-*` 包来说是
+`src/<package>/providers`）。完整字段、缓存与刷新行为、优先级和安全提示见
+[Gateway → 外部 Shim 源](../gateway/configuration.md#外部-shim-源)。
+编程方式可用 `llm_rosetta.shims.rebuild_shims()`（无需配置文件）或
+`llm_rosetta.gateway.apply_shim_sources(raw, config_path)`。
+
+!!! warning
+    声明的源可能携带在加载时被执行的 `transforms.py` —— 与安装插件包是同一信任级别。
+    请固定 ref，并只添加你信任的源。
+
 ## 内置 Shim
 
 LLM-Rosetta 内置 16 个提供方 shim：

@@ -18,6 +18,21 @@ title: 管理面板
 
 设置全局代理 URL，适用于所有提供方（除非在提供方级别单独覆盖）。
 
+### 外部 Shim 源
+
+**Settings** 标签页中有一个 **Shim Sources** 区块，对应顶层 `shims` 配置段（见
+[外部 Shim 源](configuration.md#外部-shim-源)）。它列出声明的 **Directories**
+（每行一个）、**Remotes**（JSON 数组）以及其余开关 —— **缓存目录**、**重新拉取间隔（秒）**、
+**源加载失败时拒绝启动** —— 并给出每个源的状态表：`已加载` / `失败`、是否使用了过期缓存、
+shim 数量（shim 名在 tooltip 中）、解析出的目录，以及远程源被固定到的 commit SHA。
+
+**Save** 保存该段并重新应用；**Reload** 重新应用当前配置；**Refetch** 强制重新下载所有
+远程源（绕过缓存与 `refresh` 设置）。失败的源会在这里报告，但不会阻止 gateway 启动。
+
+!!! warning
+    声明的 shim 目录或归档会在加载时执行第三方 Python（`transforms.py`）。只添加你信任的
+    源，并尽量固定 tag 或 commit SHA。
+
 ### 提供方管理
 
 每个提供方卡片显示名称、API 标准类型、Base URL、脱敏后的 API Key、可选代理，以及**提供方 Logo**（如果在提供方 shim 中声明）。当提供方配置的 shim 包含 `to_transforms` 或 `from_transforms` 时，活跃的转换规则会显示在卡片上。支持以下操作：

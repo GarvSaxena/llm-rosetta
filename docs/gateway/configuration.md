@@ -46,6 +46,69 @@ title: 配置
 
 也可以通过 `register_shim()` 以编程方式注册自定义 shim。
 
+### 外部 Shim 源
+
+shim 不必放在包内。顶层 `shims` 段可以让 gateway 额外扫描若干目录，以及从远程归档拉取
+并缓存到本地 —— 于是一套 shim 可以维护在独立仓库里，直接消费，无需往 gateway 镜像里
+安装任何东西。
+
+```jsonc
+"shims": {
+  // 扫描 <name>/provider.yaml（平铺）或 <group>/<leaf>/provider.yaml（分组）。
+  // 相对路径以本配置文件所在目录为基准解析。
+  "paths": ["./local-shims", "../shared/rosetta-shims"],
+
+  "remotes": [
+    {
+      "name": "alcf",                                  // 可选；缺省时从 URL 推导
+      "url": "https://github.com/Oaklight/llm-rosetta-shim-alcf",
+      "ref": "v0.1.0",                                 // 可选；见下文「ref 解析」
+      "path": "src/llm_rosetta_shim_alcf/providers",   // 归档内的子路径
+      "archive": "auto",                               // auto | tar.gz | zip
+      "sha256": "0123…abcd",                           // 可选；归档校验
+      "token_env": "GITHUB_TOKEN",                     // 可选；私有仓库
+      "refresh": "auto"                                // auto | always | never
+    }
+  ],
+
+  "cache_dir": "./shims-cache",   // 可选；默认 <config_dir>/shims-cache
+  "remote_ttl": 86400,            // 可选；未固定 ref 的重新拉取间隔（秒）
+  "strict": false                 // 可选；true 表示某个源失败即拒绝启动
+}
+```
+
+**目录布局。** `paths` 里的目录可以直接放 `provider.yaml`（`my-provider/provider.yaml`），
+也可以用子目录分组多个 shim（`vendor/messages/provider.yaml`、
+`vendor/chat_completions/provider.yaml`），与内置 shim 的两种布局一致。
+
+**远程拉取不依赖 git。** GitHub 仓库 URL 会被改写到 codeload 的 tarball 端点；其它站点
+给出显式归档 URL 即可（可含 `{ref}` 占位符），所以 GitLab 和自建 forge 都不需要按站点
+写代码。只接受 HTTPS（回环地址可用 HTTP）。
+
+**ref 解析。** 给了 `ref`（tag / 分支 / commit SHA）就拉该 ref。省略 `ref` 时，会通过
+host API（GitHub）把 `HEAD` 解析成具体 commit SHA 并记录进缓存 stamp，后续启动复用同一
+commit；配置文件本身不会被改写。要可复现部署请固定 tag 或 SHA。
+
+**缓存与刷新。** 归档解压到 `cache_dir`（默认 `<config_dir>/shims-cache`，与配置文件同级）。
+固定 ref、给出 `sha256`、或 `refresh: "never"` 都只拉取一次；`refresh: "always"` 每次都拉；
+默认 `auto` 在缓存超过 `remote_ttl` 时重新拉取。拉取失败但已有缓存时，会告警并使用旧缓存；
+只有在无缓存可用时该源才算失败。
+
+**优先级。** shim 同名时后者覆盖前者：内置 → entry point 插件 → `paths` 按顺序 →
+`remotes` 按顺序。
+
+**失败处理。** 默认情况下坏的源只记录日志、在管理面板中报告并跳过，gateway 照常启动；
+设置 `shims.strict: true` 可改为启动失败。
+
+**编程调用。** `llm_rosetta.shims.rebuild_shims()` 可直接加载目录与远程源（不需要配置文件）；
+`llm_rosetta.gateway.apply_shim_sources(raw, config_path)` 应用一个配置字典。
+`create_app` 也会自动应用该段。
+
+!!! warning "声明的源会执行代码"
+    shim 目录可以携带 `transforms.py`，它会在 shim 加载时被执行 —— 与 `pip install`
+    安装插件包是同一信任级别。建议固定 `ref`（必要时再给 `sha256`），并且只添加你信任的源。
+    信任边界是「谁能修改配置文件」。
+
 ### 图片数量限制
 
 Shim 支持 `max_images` 和 `max_images_pattern` 字段，用于对每次请求中的图片数量设置上限：

@@ -18,6 +18,16 @@ title: Shims
 
 ::: llm_rosetta.shims.provider_shim.resolve_base
 
+## External Shim Sources
+
+::: llm_rosetta.shims.sources.rebuild_shims
+
+::: llm_rosetta.shims.sources.resolve_remote
+
+::: llm_rosetta.shims.sources.ShimLoadReport
+
+::: llm_rosetta.shims.sources.ShimSourceStatus
+
 ## Transforms
 
 ::: llm_rosetta.transforms.Transform
