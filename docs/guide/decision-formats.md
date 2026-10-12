@@ -12,7 +12,7 @@ LLM-Rosetta 目前支持 **2 个格式族**，预计随着范式成熟会有更�
 
 | 格式族 | Provider | Endpoint | Converter 类 |
 |-------|----------|----------|--------------|
-| TypeSafe System One | TypeSafe AI (Jev) | `POST /v1/systemone` | `TypeSafeDecisionConverter` |
+| System One | TypeSafe AI (Jev) | `POST /v1/systemone` | `SystemOneDecisionConverter` |
 | OpenAI Decisions | OpenAI | `POST /v1/decisions` | `OpenAIDecisionsConverter` |
 
 ## 核心概念
@@ -21,14 +21,14 @@ LLM-Rosetta 目前支持 **2 个格式族**，预计随着范式成熟会有更�
 
 Decision API 使用类型化的 questions，每种对应固定的答案空间：
 
-| IR 类型 | TypeSafe Wire 名 | 命题类型 | 输入 | 输出 |
+| IR 类型 | System One Wire 名 | 命题类型 | 输入 | 输出 |
 |---------|------------------|----------|------|------|
 | `assertion` | `noul` | 命题 | 是/否断言 + 可选 criteria | P(true) ∈ [0, 1] |
 | `choice` | `choice` | 分类命题 | 选项及描述 | 选中选项 + 概率分布 |
 | `score` | `score` | 有序命题 | 有序等级（≥ 2 级） | 加权分数 + 概率分布 |
 
 !!! note "命名"
-    三种 IR 原语按所评估的命题类型命名：`assertion`（**命题**）、`choice`（**分类命题**）、`score`（**有序命题**）。IR 名称 `assertion` 由 `TypeSafeDecisionConverter` 转换为 TypeSafe wire 名称 `noul`。
+    三种 IR 原语按所评估的命题类型命名：`assertion`（**命题**）、`choice`（**分类命题**）、`score`（**有序命题**）。IR 名称 `assertion` 由 `SystemOneDecisionConverter` 转换为 System One wire 名称 `noul`。
 
 ### Entry
 
@@ -63,7 +63,7 @@ state = {
 ### 多模态（`images[]`）
 
 System One 家族（Cloudflare Clef、classifier.dev）在请求上扩展了一个顶层
-`images` 数组，元素为内联 base64 data URL。`TypeSafeDecisionConverter` 把它
+`images` 数组，元素为内联 base64 data URL。`SystemOneDecisionConverter` 把它
 映射到 IR 的 `state` content parts —— 文本 part 拼进 `state`，图片 part 变成
 `images`（入方向反向）：
 
@@ -274,9 +274,9 @@ response: IRDecisionResponse = {
 ## 使用 Converter
 
 ```python
-from llm_rosetta.converters.decision import TypeSafeDecisionConverter
+from llm_rosetta.converters.decision import SystemOneDecisionConverter
 
-converter = TypeSafeDecisionConverter()
+converter = SystemOneDecisionConverter()
 
 # TypeSafe wire → IR
 ir_request = converter.request_from_provider(typesafe_request)
@@ -293,10 +293,10 @@ wire_response = converter.response_to_provider(ir_response)
 
 - `POST /v1/decision` — 标准路由
 - `POST /v1/decisions` — OpenAI 兼容别名
-- `POST /v1/systemone` — TypeSafe 兼容别名
+- `POST /v1/systemone` — System One 兼容别名
 
-!!! warning "Phase 1 限制"
-    网关的 decision provider 路由（`GatewayConfig` 中的 `resolve_decision` / `decision_models`）尚未实现。两个路由目前返回 501。
+!!! note "Provider 路由"
+    网关通过 `decision_models`（`GatewayConfig.resolve_decision`）解析 decision 请求的上游 provider，并按请求探测源头格式——探测顺序见 Changelog。
 
 ## 与 Chat 结构化输出的对比
 

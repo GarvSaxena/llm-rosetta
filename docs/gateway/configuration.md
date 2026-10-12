@@ -543,12 +543,12 @@ soft_error_patterns:
 ```jsonc
 {
   "decision_providers": {
-    "jev-prod": { "type": "typesafe_decision", "api_key": "${JEV_API_KEY}", "base_url": "https://api.typesafe.ai" }
+    "jev-prod": { "type": "typesafe", "api_key": "${JEV_API_KEY}", "base_url": "https://api.typesafe.ai" }
   },
   "decision_models": {
     "jev-1": "jev-prod"
   },
-  "default_decision_format": "typesafe_decision"
+  "default_decision_format": "systemone"
 }
 ```
 
@@ -556,7 +556,7 @@ soft_error_patterns:
 |------|------|--------|------|
 | `decision_providers` | `dict` | `{}` | Decision 上游的 provider 配置 |
 | `decision_models` | `dict` | `{}` | 模型 → provider 映射 |
-| `default_decision_format` | `str` | `"typesafe_decision"` | 源格式回退 |
+| `default_decision_format` | `str` | `"systemone"` | 源格式回退 |
 
 ## 完整示例
 
