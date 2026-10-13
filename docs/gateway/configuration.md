@@ -337,9 +337,9 @@ The strategy is set per model.  Single-provider models ignore it.
 
 `server.prefer_same_format` (default `false`) biases provider selection toward the upstream that
 already speaks the client's API format, so a multi-format model converts only when it has to.
-Selection picks an **anchor** first — the provider routing would choose with the flag off, so the
-per-account load share is unchanged — then realigns to the client's format within that anchor, in
-tiers:
+Selection picks an **anchor** first — the provider routing would choose with the flag off, so the full
+route's counters advance exactly as they would there — then realigns to the client's format within
+that anchor, in tiers:
 
 1. **Same shim and endpoint** as the anchor (usually the anchor itself). A shim fixes the format,
    so this tier only orders failover between identical endpoints.
