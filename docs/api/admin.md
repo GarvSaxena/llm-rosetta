@@ -454,6 +454,11 @@ attributed by credential, so renaming a key does not change its stats and
 rotating a key starts a fresh bucket.  Keys with no traffic are present and
 zero-filled; buckets with no live key are omitted.
 
+!!! note
+    The `30d` figure is bounded by log retention: once the success cap
+    (`RetentionPolicy.success_max`, default 50 000) prunes older rows, the
+    widest window undercounts.
+
 ```
 GET /admin/api/keys/usage
 ```
