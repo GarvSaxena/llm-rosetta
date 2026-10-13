@@ -85,7 +85,7 @@ Passthrough 数据带有 converter dialect 标签，例如 `open_responses` 或 
 
 在 `25924518`（2026 年 8 月）之前，pipeline 根本没有 `baseline` 模式。后来加上它和配套的保真度检查器，是为了让翻译问题**同步暴露**：同一个请求同时走 IR 路径和 `baseline`，把两者输出做 diff，抓往返回归问题。`baseline` 是定位翻译问题的诊断模式，不是生产路径。
 
-这是一项长期的设计决定，而非实现细节：**网关不会对同格式路由走捷径——所有请求依然经过 IR 转换。** `baseline` 只为同步暴露翻译问题而存在，不存在绕过 IR 的路径。`prefer_same_format` 只影响为某个模型*挑选哪个*上游 provider——它绝不会绕过 IR 转换。决策记录：[#577 评论](https://github.com/Oaklight/llm-rosetta/issues/577#issuecomment-5461182245)。
+这是一项长期的设计决定，而非实现细节：**网关不会对同格式路由走捷径——所有请求依然经过 IR 转换。** `baseline` 只为同步暴露翻译问题而存在，不存在绕过 IR 的路径。`prefer_same_format` 只影响为某个模型*挑选哪个*上游 provider——它绝不会绕过 IR 转换，其第 1 层（与锚点同 shim、同 endpoint）也只是故障转移排序，而非捷径。该偏好是分层的，且相对一个**锚点**——即关闭该开关时路由会挑中的 provider；各层依次在锚点的 endpoint、锚点的账号、再到任意 provider 范围内把格式对齐到客户端，账号由凭据来源推导而非声明。决策记录：[#577 评论](https://github.com/Oaklight/llm-rosetta/issues/577#issuecomment-5461182245)。
 
 ## Round-Trip 兼容性
 
