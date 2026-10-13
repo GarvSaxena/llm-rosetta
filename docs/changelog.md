@@ -632,6 +632,8 @@ All notable changes to LLM-Rosetta are documented here. This project follows [Ke
 
 ### Added
 
+- **面向能承载工具分组的目标**（issue [#953](https://github.com/Oaklight/llm-rosetta/issues/953)）：shim 现在可以声明 `tools.tool_groups: true`，Responses 写入侧就会把客户端的分组以 `{"type": "namespace", …}` 容器的形式重新发出，而不再把组名折进工具名里。这个声明是**按 provider** 的、不能由 base format 推导：OpenRouter 的 Chat Completions 通道接受容器而 OpenAI 的不接受，Anthropic 与 Google 只对自家 MCP 服务器带来的工具分组。**默认关闭，且目前没有任何 shim 打开它**，因此可观察行为不变。容器内的子工具沿用命名阶段给出的名字 —— 在容器内缩短它们是需要和 `ToolNameMap` 一起决定的事，仍挂在 issue 上。同一改动移除了 contested 名字机制：生成组 id 让它不可达，八种碰撞形状走 pipeline 没有一种能触发它。
+
 - **Process-level conversion cache** ([#276](https://github.com/Oaklight/llm-rosetta/issues/276), [#279](https://github.com/Oaklight/llm-rosetta/pull/279), [#281](https://github.com/Oaklight/llm-rosetta/pull/281), [#283](https://github.com/Oaklight/llm-rosetta/pull/283)): Per-entry LRU cache with access-refreshed TTL (default 30 min) for tool conversion, schema sanitization, and IR validation. Eliminates repeated work for unchanged tool definitions and messages across conversation turns
     - **Hub-and-spoke architecture**: conversion caches (spokes) are converter-specific; IR validation cache (hub) is converter-agnostic and shared across all converters
     - **Per-entry caching**: individual tools and messages cached by content hash — partial tool changes only re-convert the changed entries, and cross-agent tool overlap shares cache entries
