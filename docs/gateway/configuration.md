@@ -333,6 +333,30 @@ the gateway selects among providers:
 
 The strategy is set per model.  Single-provider models ignore it.
 
+### Same-Format Preference
+
+`server.prefer_same_format` (default `false`) biases provider selection toward the upstream that
+already speaks the client's API format, so a multi-format model converts only when it has to.
+Selection picks an **anchor** first — the provider routing would choose with the flag off, so the
+per-account load share is unchanged — then realigns to the client's format within that anchor, in
+tiers:
+
+1. **Same shim and endpoint** as the anchor (usually the anchor itself). A shim fixes the format,
+   so this tier only orders failover between identical endpoints.
+2. **Same upstream account**, different format — the anchor's account also exposes the client's
+   format, so the request stays on the same account instead of moving to another.
+3. **Any provider** in the client's format.
+4. Otherwise the anchor, converted through IR.
+
+Account identity is derived, not declared. Two providers share an account when they carry the same
+credential — the same `token_command`, or the same key value (a literal key and an env-resolved key
+with the same value count as the same key). Only a hash of the credential is compared, and keyless
+providers never group. `base_url` is deliberately excluded, so a vendor fronting several formats
+from different paths on one key still counts as one account.
+
+The flag changes only *which* upstream serves a request. Conversion still always runs through IR —
+including in tier 1. See the [Architecture Guide](../contributing/architecture.md).
+
 ## Gateway API Keys
 
 Gateway API keys are managed through the **admin panel** — there is no
