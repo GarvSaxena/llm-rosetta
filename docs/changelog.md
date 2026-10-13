@@ -521,6 +521,8 @@ All notable changes to LLM-Rosetta are documented here. This project follows [Ke
 
 ### Changed
 
+- **工具分组在已知目标时才命名**（issue [#953](https://github.com/Oaklight/llm-rosetta/issues/953)）：撞名的工具现在在**目标侧**做限定，而不是在拍平容器的源转换器里，因此这一步判定的是真正会发往上游的名字。自身没有名字的容器会得到一个由内容派生的短标识（`g` + 七位 base32，32 位，同一请求稳定，prompt cache 因此不受影响），而不是拍平成空组；畸形容器按**每次请求**报告一次，而不是每个进程一次。**生成组**内逐字节相同的子工具会折叠成一个（#913）；而**客户端命名**的组仍把它们分开——这既是 #955 的决定，也是 DeepSeek 与 Volcengine 对容器内重名的硬性要求。其余行为未变：顶层与具名组的撞名、字节相同的折叠、以及 `tool_name_collisions` 都与之前一致。
+
 - **工具分组成为 IR 字段**（issue [#953](https://github.com/Oaklight/llm-rosetta/issues/953)）：`ToolDefinition` 新增 `tool_group` 与 `tool_group_description`，工具所属的组不再寄存在 `metadata.namespace` 里。`namespace` 一词从此专指 Responses API 家族在同一条腿上的 wire 字段——而 vendor-neutral 的 Open Responses spec 根本没有分组概念——因此它只出现在读写 provider 请求体的地方。行为不变：容器仍在源侧拍平，扁平目标下撞名的子工具仍会改名；把这一决定推迟到目标感知阶段、以及让工具**调用**也带上自身的组，都在同一个 issue 上跟进。
 
 - **Transform 字段重命名** —— `from_transforms` → `pre_ir_transforms`，`to_transforms` → `post_ir_transforms`（`ProviderShim` 上的字段）。旧名称在构造函数参数和 `transforms.py` 导出中均作为向后兼容别名继续有效。
