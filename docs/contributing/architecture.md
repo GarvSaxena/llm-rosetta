@@ -87,6 +87,10 @@ Passthrough 数据带有 converter dialect 标签，例如 `open_responses` 或 
 
 这是一项长期的设计决定，而非实现细节：**网关不会对同格式路由走捷径——所有请求依然经过 IR 转换。** `baseline` 只为同步暴露翻译问题而存在，不存在绕过 IR 的路径。`prefer_same_format` 只影响为某个模型*挑选哪个*上游 provider——它绝不会绕过 IR 转换，其第 1 层（与锚点同 shim、同 endpoint）也只是故障转移排序，而非捷径。该偏好是分层的，且相对一个**锚点**——即关闭该开关时路由会挑中的 provider；各层依次在锚点的 endpoint、锚点的账号、再到任意 provider 范围内把格式对齐到客户端，账号由凭据来源推导而非声明。决策记录：[#577 评论](https://github.com/Oaklight/llm-rosetta/issues/577#issuecomment-5461182245)。
 
+上述判断所依赖的"同格式"概念，现在是 pipeline 上的一个命名属性 `ConversionPipeline._same_format`：访问时由调用方传入的两个 provider spec（已规范化）直接比较得出，而不是在每个使用点各自从格式字符串重新推导。它同时决定 `baseline` 与 intrinsic 捷径。注意它比较的是 **spec 而非 converter**：裸 `chat_completions` 源与 `deepseek--chat_completions` 目标共享同一个 converter 类，但在这里刻意为不同 spec——若当作同一个，就会跳过目标 shim 的 IR 级特性（其 reasoning 配置、其 transforms），而这正是指定 shim 的调用方期望得到的东西。
+
+Intrinsic（provider 托管的）服务端工具由**目标 shim**决定，与格式名无关。`resolve_intrinsic_tools` 从*已解析*的 shim 上读 `ToolsConfig.intrinsic_tools`，并会先把 shim 名解析成对象，因此网关的 `target_shim=route.shim_name` 与库层传 shim 对象的行为完全一致。某个客户端格式能否原生声明服务端工具，同样是 **converter** 的属性（`BaseConverter._SUPPORTS_NATIVE_SERVER_TOOLS`）而非硬编码的格式字符串：Chat Completions 置为 `False`，这正是允许把以受支持 kind 命名的普通 function 提升为 intrinsic 的开关。
+
 ## Round-Trip 兼容性
 
 所有转换路径必须保持 **round-trip 兼容性**。每个变更都必须针对以下场景进行测试：
