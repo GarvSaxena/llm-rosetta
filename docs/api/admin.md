@@ -451,6 +451,11 @@ DELETE /admin/api/keys/<key_id>
 因此重命名 Key 不影响其统计，而轮换 Key 会启用一个新的 bucket。没有流量的
 Key 也会出现并填零；没有对应存活 Key 的 bucket 会被省略。
 
+!!! note
+    `30d` 数值受日志保留策略约束：一旦成功记录上限
+    （`RetentionPolicy.success_max`，默认 50 000）触发、旧行被清理，
+    最宽的窗口就会少算。
+
 ```
 GET /admin/api/keys/usage
 ```
