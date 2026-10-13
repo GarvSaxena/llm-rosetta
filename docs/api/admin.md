@@ -447,6 +447,46 @@ DELETE /admin/api/keys/<key_id>
 
 ---
 
+### Key usage
+
+Per-key token usage over rolling windows (5h / 24h / 7d / 30d).  Usage is
+attributed by credential, so renaming a key does not change its stats and
+rotating a key starts a fresh bucket.  Keys with no traffic are present and
+zero-filled; buckets with no live key are omitted.
+
+```
+GET /admin/api/keys/usage
+```
+
+**Response**
+
+```json
+{
+  "windows": ["5h", "24h", "7d", "30d"],
+  "keys": {
+    "a1b2c3d4": {
+      "label": "production",
+      "windows": {
+        "5h": {
+          "request_count": 412,
+          "input_tokens": 1200000,
+          "output_tokens": 340000,
+          "total_tokens": 1600000,
+          "cache_read_tokens": 0,
+          "cache_creation_tokens": 0,
+          "reasoning_tokens": 0
+        },
+        "24h": {"...": "..."},
+        "7d": {"...": "..."},
+        "30d": {"...": "..."}
+      }
+    }
+  }
+}
+```
+
+---
+
 ### Reveal key
 
 Return the unmasked value of a specific API key.  Requires
