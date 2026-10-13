@@ -39,6 +39,7 @@ All notable changes to LLM-Rosetta are documented here. This project follows [Ke
 - **保真度验证** (PRs [#772](https://github.com/Oaklight/llm-rosetta/pull/772), [#796](https://github.com/Oaklight/llm-rosetta/pull/796))：持久化往返转换基线与回归检测。同格式路由 always-on shadow diff。
 - **双向工具命名空间映射** (PR [#753](https://github.com/Oaklight/llm-rosetta/pull/753))：Provider 间工具名无冲突翻译，支持往返保持。
 - **可观测性** (PRs [#702](https://github.com/Oaklight/llm-rosetta/pull/702), [#755](https://github.com/Oaklight/llm-rosetta/pull/755), [#756](https://github.com/Oaklight/llm-rosetta/pull/756))：cache 和 reasoning token 追踪、TTFB 指标、客户端断连检测、vendored tracing profiler 替代 pyinstrument。
+- **工具名冲突显式化** (issue [#907](https://github.com/Oaklight/llm-rosetta/issues/907))：`dedupe_tool_definitions` 的冲突分支现在同时输出到客户端和 error dump。当请求以同一个工具名声明了多个不同定义、并被上游以 `4xx` 拒绝时，网关会把一段 `[llm-rosetta]` 提示追加到客户端收到的 `error.message`，点名冲突的工具名，使一句裸的 "Tool names must be unique" 可以归因到客户端自己的工具列表，而不是看起来像网关故障。结构化映射（`{名称: 不同定义数}`）会以新增的 `tool_name_collisions` 列写入 error dump（schema migration v3），并在 admin 的 dump 查看器中展示。改写只触及 `error.message`：非 JSON 响应体、或已带有该标记的响应体，一律保持原样；`5xx` 响应不做标注。
 
 ### 变更（**破坏性变更**）
 
