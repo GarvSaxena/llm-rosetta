@@ -445,6 +445,45 @@ DELETE /admin/api/keys/<key_id>
 
 ---
 
+### Key 用量
+
+按滚动窗口（5h / 24h / 7d / 30d）返回每个 Key 的令牌用量。归属按凭证计算，
+因此重命名 Key 不影响其统计，而轮换 Key 会启用一个新的 bucket。没有流量的
+Key 也会出现并填零；没有对应存活 Key 的 bucket 会被省略。
+
+```
+GET /admin/api/keys/usage
+```
+
+**响应**
+
+```json
+{
+  "windows": ["5h", "24h", "7d", "30d"],
+  "keys": {
+    "a1b2c3d4": {
+      "label": "production",
+      "windows": {
+        "5h": {
+          "request_count": 412,
+          "input_tokens": 1200000,
+          "output_tokens": 340000,
+          "total_tokens": 1600000,
+          "cache_read_tokens": 0,
+          "cache_creation_tokens": 0,
+          "reasoning_tokens": 0
+        },
+        "24h": {"...": "..."},
+        "7d": {"...": "..."},
+        "30d": {"...": "..."}
+      }
+    }
+  }
+}
+```
+
+---
+
 ### 查看 Key 明文
 
 返回指定 API Key 的未脱敏值。需要 `server.credential_visible: true`。
