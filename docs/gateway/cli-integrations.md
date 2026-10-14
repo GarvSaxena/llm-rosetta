@@ -119,18 +119,48 @@ The gateway is a drop-in backend for popular AI coding CLI tools. Each tool spea
 
 ## Antigravity CLI (agy)
 
-[Antigravity CLI](https://antigravity.google/docs/cli/install/) is Google's agentic coding CLI (successor to Gemini CLI). It uses the **Google GenAI API** (`/v1beta/models/...`).
+[Antigravity CLI](https://antigravity.google/docs/cli/install/) is Google's agentic coding CLI (successor to Gemini CLI). It speaks the **Google GenAI API** (`/v1beta/models/...`) and, since 1.3.x, an undocumented **gateway mode** that also accepts the OpenAI wire protocol.
 
-=== "Config Files (Recommended)"
+=== "Gateway mode (Recommended)"
+
+    Gateway mode is configured entirely through environment variables. It authenticates with a bearer token, sends the model id **verbatim**, and skips agy's built-in Gemini catalog — which is what makes non-Google models such as `deepseek-v4-flash` actually take effect.
+
+    **1. `~/.gemini/antigravity-cli/settings.json`** — `model` is a **string** (v1.3.5 rejects `{"name": ...}`), and `modelProvider` must be **absent**:
+
+    ```json
+    {
+        "model": "deepseek-v4-flash"
+    }
+    ```
+
+    **2. Environment variables** (add to shell profile):
+
+    ```bash
+    export AGY_LLM_GATEWAY_URL="http://localhost:8765"
+    export AGY_LLM_GATEWAY_API_KEY="your-api-key"
+    export AGY_LLM_GATEWAY_WIRE_PROTOCOL="genai"
+    export AGY_LLM_GATEWAY_MODELS="deepseek-v4-flash"
+    ```
+
+    Then just run `agy`.
+
+    `AGY_LLM_GATEWAY_WIRE_PROTOCOL` accepts only two values:
+
+    - `genai` — `/v1beta/models/{model}:streamGenerateContent`, matching the catalog the gateway exposes at `GET /v1beta/models`
+    - `openai` — `/v1/models` plus chat completions
+
+    Any other value is rejected (`gateway wireProtocol "<x>" is unsupported; must be "genai" or "openai"`).
+
+    Set `AGY_LLM_GATEWAY_MODELS` (comma-separated) as well. Without it, agy fetches the gateway catalog, and that **discovery stops at 32 models** (`44 custom gateway model(s) exceeded the maximum placeholder limit (32); skipped to prevent Model enum collision`); a `model` outside the first 32 silently resolves to whichever model sits at index 0. With the list set, discovery is skipped entirely and `model` is matched against it verbatim.
+
+=== "Legacy GenAI mode"
 
     **1. `~/.gemini/antigravity-cli/settings.json`**:
 
     ```json
     {
         "modelProvider": "gemini",
-        "model": {
-            "name": "gemini-3.5-flash"
-        }
+        "model": "gemini-3.5-flash"
     }
     ```
 
@@ -143,21 +173,17 @@ The gateway is a drop-in backend for popular AI coding CLI tools. Each tool spea
 
     Then just run `agy`.
 
-=== "Environment Variables"
-
-    ```bash
-    GOOGLE_GEMINI_BASE_URL=http://localhost:8765 \
-    GEMINI_API_KEY=your-api-key \
-    agy
-    ```
-
-The model name can be **any model** configured on your gateway — including non-Google models like `claude-sonnet-4-6`, `deepseek-v4-flash`, or `gpt-5-nano`. The gateway handles cross-format conversion transparently.
+    This path still works, but agy resolves `model` against its own built-in Gemini catalog first, so a non-Google id is replaced before the request is sent (`model alias "deepseek-v4-flash" resolved to "Gemini 3.1 Pro (Low)"`). Use gateway mode to address a specific non-Google model.
 
 !!! warning "Planner model required"
     agy internally uses a hardcoded planner model (`gemini-3.1-pro-preview`) alongside your chosen model. This **cannot be overridden** — your gateway must have this model configured.
 
 !!! tip "Using non-Google models"
-    This is the key use case: run agy against Claude, DeepSeek, GPT, or any other provider. The gateway converts between Google GenAI format and the target provider's format automatically.
+    This is the key use case: run agy against Claude, DeepSeek, GPT, or any other provider. The gateway converts between Google GenAI format and the target provider's format automatically. Use **gateway mode** so that the model id you configure is the one that is actually requested.
+
+!!! note
+    - `modelProvider: "gemini"` belongs to legacy mode only. In gateway mode it must be absent — with it set, agy demands a `GEMINI_API_KEY` that gateway mode never reads and exits with `modelProvider is set to "gemini" ... but the GEMINI_API_KEY environment variable is not set`
+    - HTTP/2 is not required; agy works over both HTTP/2 and HTTP/1.1
 
 **Supported**: chat, streaming, vision, tool calls ✅
 
@@ -340,7 +366,8 @@ print(message.content[0].text)
 | Codex CLI | OpenAI Responses | `OPENAI_BASE_URL` | `http://localhost:8765/v1` |
 | Aider (OpenAI) | OpenAI | `OPENAI_API_BASE` | `http://localhost:8765/v1` |
 | Aider (Anthropic) | Anthropic | `ANTHROPIC_BASE_URL` | `http://localhost:8765` |
-| agy | Google GenAI | `GOOGLE_GEMINI_BASE_URL` | `http://localhost:8765` |
+| agy (legacy mode) | Google GenAI | `GOOGLE_GEMINI_BASE_URL` | `http://localhost:8765` |
+| agy (gateway mode) | GenAI or OpenAI | `AGY_LLM_GATEWAY_URL` | `http://localhost:8765` |
 | OpenCode | OpenAI | `OPENAI_BASE_URL` | `http://localhost:8765/v1` |
 | Kilo Code | OpenAI | — (config file) | `http://localhost:8765/v1` |
 | OpenAI SDK | OpenAI | `OPENAI_BASE_URL` | `http://localhost:8765/v1` |
