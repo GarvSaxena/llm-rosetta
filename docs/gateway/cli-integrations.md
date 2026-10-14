@@ -119,18 +119,48 @@ title: CLI 工具集成
 
 ## Antigravity CLI (agy)
 
-[Antigravity CLI](https://antigravity.google/docs/cli/install/) 是 Google 的智能编程 CLI（Gemini CLI 的后继者），使用 **Google GenAI API** (`/v1beta/models/...`)。
+[Antigravity CLI](https://antigravity.google/docs/cli/install/) 是 Google 的智能编程 CLI（Gemini CLI 的后继者），使用 **Google GenAI API** (`/v1beta/models/...`)，并且从 1.3.x 起提供未公开的 **gateway 模式**，同时支持 OpenAI wire protocol。
 
-=== "配置文件（推荐）"
+=== "Gateway 模式（推荐）"
+
+    Gateway 模式完全通过环境变量配置。它使用 bearer token 认证，**原样传递**模型 id，并跳过 agy 内置的 Gemini 模型目录 — 这正是非 Google 模型（如 `deepseek-v4-flash`）能够真正生效的原因。
+
+    **1. `~/.gemini/antigravity-cli/settings.json`** — `model` 是**字符串**（v1.3.5 不接受 `{"name": ...}`），且必须**不设置** `modelProvider`：
+
+    ```json
+    {
+        "model": "deepseek-v4-flash"
+    }
+    ```
+
+    **2. 环境变量**（添加到 shell 配置文件）：
+
+    ```bash
+    export AGY_LLM_GATEWAY_URL="http://localhost:8765"
+    export AGY_LLM_GATEWAY_API_KEY="your-api-key"
+    export AGY_LLM_GATEWAY_WIRE_PROTOCOL="genai"
+    export AGY_LLM_GATEWAY_MODELS="deepseek-v4-flash"
+    ```
+
+    然后直接运行 `agy`。
+
+    `AGY_LLM_GATEWAY_WIRE_PROTOCOL` 只接受两个值：
+
+    - `genai` — `/v1beta/models/{model}:streamGenerateContent`，对应网关在 `GET /v1beta/models` 暴露的模型目录
+    - `openai` — `/v1/models` 加 chat completions
+
+    其他值会被拒绝（`gateway wireProtocol "<x>" is unsupported; must be "genai" or "openai"`）。
+
+    同时请设置 `AGY_LLM_GATEWAY_MODELS`（逗号分隔）。不设置时 agy 会拉取网关的模型目录，而该**发现过程最多 32 个模型**（`44 custom gateway model(s) exceeded the maximum placeholder limit (32); skipped to prevent Model enum collision`）；不在前 32 个之内的 `model` 会静默解析为索引 0 处的模型。设置该列表后，发现过程会被完全跳过，`model` 按字面匹配。
+
+=== "旧版 GenAI 模式"
 
     **1. `~/.gemini/antigravity-cli/settings.json`**：
 
     ```json
     {
         "modelProvider": "gemini",
-        "model": {
-            "name": "gemini-3.5-flash"
-        }
+        "model": "gemini-3.5-flash"
     }
     ```
 
@@ -143,21 +173,17 @@ title: CLI 工具集成
 
     然后直接运行 `agy`。
 
-=== "环境变量"
-
-    ```bash
-    GOOGLE_GEMINI_BASE_URL=http://localhost:8765 \
-    GEMINI_API_KEY=your-api-key \
-    agy
-    ```
-
-模型名称可以是网关上配置的**任何模型** — 包括非 Google 模型如 `claude-sonnet-4-6`、`deepseek-v4-flash` 或 `gpt-5-nano`。网关会自动处理跨格式转换。
+    该路径仍然可用，但 agy 会先用其内置的 Gemini 模型目录解析 `model`，因此非 Google 的 id 会在请求发出前被替换（`model alias "deepseek-v4-flash" resolved to "Gemini 3.1 Pro (Low)"`）。需要指定某个非 Google 模型时请使用 gateway 模式。
 
 !!! warning "需要 Planner 模型"
     agy 内部使用硬编码的 planner 模型（`gemini-3.1-pro-preview`），**无法覆盖** — 你的网关必须配置此模型。
 
 !!! tip "使用非 Google 模型"
-    这是核心用途：通过网关让 agy 使用 Claude、DeepSeek、GPT 或任何其他 provider。网关自动处理 Google GenAI 格式与目标 provider 格式之间的转换。
+    这是核心用途：通过网关让 agy 使用 Claude、DeepSeek、GPT 或任何其他 provider。网关自动处理 Google GenAI 格式与目标 provider 格式之间的转换。请使用 **gateway 模式**，以确保实际请求的模型就是你所配置的模型。
+
+!!! note
+    - `modelProvider: "gemini"` 只属于旧版模式。在 gateway 模式中必须不设置 — 设置后 agy 会要求一个 gateway 模式从不读取的 `GEMINI_API_KEY`，并以 `modelProvider is set to "gemini" ... but the GEMINI_API_KEY environment variable is not set` 退出
+    - 不要求 HTTP/2；agy 在 HTTP/2 和 HTTP/1.1 下均可工作
 
 **支持功能**：对话、流式传输、视觉、工具调用 ✅
 
@@ -340,7 +366,8 @@ print(message.content[0].text)
 | Codex CLI | OpenAI Responses | `OPENAI_BASE_URL` | `http://localhost:8765/v1` |
 | Aider (OpenAI) | OpenAI | `OPENAI_API_BASE` | `http://localhost:8765/v1` |
 | Aider (Anthropic) | Anthropic | `ANTHROPIC_BASE_URL` | `http://localhost:8765` |
-| agy | Google GenAI | `GOOGLE_GEMINI_BASE_URL` | `http://localhost:8765` |
+| agy（旧版模式） | Google GenAI | `GOOGLE_GEMINI_BASE_URL` | `http://localhost:8765` |
+| agy（gateway 模式） | GenAI 或 OpenAI | `AGY_LLM_GATEWAY_URL` | `http://localhost:8765` |
 | OpenCode | OpenAI | `OPENAI_BASE_URL` | `http://localhost:8765/v1` |
 | Kilo Code | OpenAI | —（配置文件）| `http://localhost:8765/v1` |
 | OpenAI SDK | OpenAI | `OPENAI_BASE_URL` | `http://localhost:8765/v1` |
