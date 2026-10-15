@@ -91,6 +91,32 @@ The same-format notion those decisions rest on is one named property, `Conversio
 
 Intrinsic (provider-hosted) server tools are gated by the **target shim**, never by the format name. `resolve_intrinsic_tools` reads `ToolsConfig.intrinsic_tools` off the *resolved* shim, and resolves a shim name first, so the gateway's `target_shim=route.shim_name` behaves identically to the library's shim object. Whether a client format can name a server tool natively is likewise a property of the **converter** (`BaseConverter._SUPPORTS_NATIVE_SERVER_TOOLS`), not a hard-coded format string: Chat Completions sets it `False`, which is what enables promotion of a plain function named after a supported kind.
 
+## Intrinsic Tools Are Derived Tool Calls
+
+An intrinsic (provider-hosted) tool is an ordinary tool call with one extra parameter, not a parallel type system. The IR carries it on the same parts a client tool uses: `ToolCallPart` / `ToolResultPart` with `tool_type="intrinsic"`, `ToolDefinition` with `type="intrinsic"`, and the streaming `ToolCallStartEvent` / `ToolCallDeltaEvent` / `ToolResultEvent`. The kind (`web_search`, `code_execution`, `google_search`, ...) is the first-class field `intrinsic_kind`, read through `intrinsic_kind_of()`, which falls back to the legacy `provider_metadata` / `metadata` spelling. Everything else a tool call has (`tool_call_id`, `tool_input`, `result`, `tool_group`, `cache_hint`, `provider_metadata`) is inherited unchanged. The kind is never inferred from a tool name.
+
+**Identity and pairing.** A call and its result pair by `tool_call_id`, never by kind. Two calls of one kind in a turn are two calls.
+
+**One decision per leg.**
+
+| Part | Leg | Policy |
+| --- | --- | --- |
+| Definition | request | Kept or dropped by the target shim's `ToolsConfig.intrinsic_tools`. Never degraded to a function: the model would call something the client cannot run. |
+| Call + result | request history | The target converter says whether it can replay the call (`intrinsic_renderable(kind, fields, leg="history")`, plus `intrinsic_requires_result`). If it can, the pair is written natively. If it cannot, `degrade_intrinsic_history` rewrites the call **and** its result, together, into an ordinary function pair. |
+| Call + result | response, stream | Never degraded: the client did not run the call, so it is never handed a client call. What the target cannot render is dropped and reported. |
+
+The history pass runs after `resolve_intrinsic_tools` and before `qualify_tool_names`, on same-format routes too. A degraded pair is marked `provider_metadata["_downgraded_from"] = {"type": "intrinsic", "kind": ...}`, takes a name-safe function name derived from the kind (qualified `{kind}_intrinsic` when the client already declared a function of that name), and is reported once in the conversion warnings. After the pass the pair is an ordinary function call, so pairing, orphan repair and name qualification are the ordinary tool flows.
+
+**Converters.** `BaseToolOps` owns the dispatch (`ir_tool_call_to_p`, `ir_tool_result_to_p`); a converter overrides only hooks: `intrinsic_renderable`, `ir_intrinsic_call_to_p`, `ir_intrinsic_result_to_p`, `intrinsic_requires_result`. A hook that returns nothing falls back to the converter's ordinary client path. A converter keeps its own kind tables and native shapes, and nothing else about intrinsics.
+
+**Native fidelity.** `metadata["_native"]` and provider signatures are valid only for their origin provider (`converters/base/helpers/opaque.py`). A foreign one is dropped, or replaced by the target's required placeholder.
+
+**Server-tool ids.** A native server item must carry its target's id prefix (Anthropic `srvtoolu_`, OpenAI `ws_` / `ci_`). `prefixed_tool_call_id` adds it deterministically and leaves an id that already has it alone, so a call and its result stay paired and a same-dialect replay is unchanged.
+
+**What crosses formats.** Every cross-format path was replayed against the live upstreams (Anthropic, OpenAI Responses, Google Interactions); each of the twelve pairs of the matrix answers `200`. A pair crosses natively when the target has the same kind and the IR carries every field the target requires, and as a function pair otherwise (an Anthropic `encrypted_content` or an OpenAI `container_id` cannot be invented). There is no semantic equivalence table between kinds such as `web_search` and `google_search`: kinds are asserted per provider, from what each upstream was measured to accept.
+
+Replay is deliberately lenient on signatures: Google Interactions accepts a `google_search` history with either signature removed, so a result signature is not carried.
+
 ## Round-Trip Compatibility
 
 All conversion paths must maintain **round-trip compatibility**. Every change must be tested against these scenarios:
