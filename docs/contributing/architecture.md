@@ -103,7 +103,19 @@ Intrinsic（provider 托管的）工具就是多了一个参数的普通工具�
 | --- | --- | --- |
 | 工具定义 | 请求 | 由目标 shim 的 `ToolsConfig.intrinsic_tools` 决定保留或丢弃。绝不降级成 function：模型会去调用一个客户端运行不了的函数。 |
 | 调用 + 结果 | 请求历史 | 由目标 converter 判断能否重放该调用（`intrinsic_renderable(kind, fields, leg="history")`，外加 `intrinsic_requires_result`）。能则原生写出；不能则由 `degrade_intrinsic_history` 把调用**和**它的结果一起改写成普通 function 对。 |
-| 调用 + 结果 | 响应、流式 | 永不降级：客户端并没有执行该调用，所以绝不把它当成客户端调用交给客户端。目标渲染不了的内容会被丢弃并上报。 |
+| 调用 + 结果 | 响应、流式 | 永不降级：响应是客户端没有执行过的调用，把它当成客户端调用交出去，等于让客户端去执行它从未请求的东西。目标渲染不了的内容交给 `dropped_intrinsic_call` / `dropped_intrinsic_result` —— 返回空，并给出带 kind 的 warning。 |
+
+这条规则放在 base 的模板里，而不是逐个 converter 各写一遍，因此不会出现"某些格式遵守、某些不遵守"的情况。按格式实测（每条路径都取一个外来 kind）：
+
+| 格式 | 历史 | 响应 | 流式 |
+| --- | --- | --- | --- |
+| messages | 降级 | 丢弃 | 丢弃 |
+| google_generate | 降级 | 丢弃 | 丢弃 |
+| google_interactions | 降级 | 丢弃 | 丢弃 |
+| open_responses | 降级 | 丢弃 | 丢弃 |
+| chat_completions | 降级 | 丢弃 | 丢弃 |
+
+`chat_completions` 在历史路径上降级，尽管它完全没有服务端工具词汇：客户端已经看到过的历史属于上下文，用 kind 命名的普通 function 调用可以承载它。另外两条路径它和其他格式一样丢弃；它的流式写出会把丢弃记在 stream context 上，这样参数 delta 和 finish flush 会跟着那个从未写出的 start 一起消失，而不是漏出去。
 
 历史降级这一步在 `resolve_intrinsic_tools` 之后、`qualify_tool_names` 之前运行，同格式路由也会跑。降级后的函数对带有 `provider_metadata["_downgraded_from"] = {"type": "intrinsic", "kind": ...}` 标记，名字由 kind 派生且对名字字符安全（客户端已声明同名函数时改为 `{kind}_intrinsic`），并在转换 warnings 里上报一次。这一步之后它就是普通 function 调用，配对、孤儿修复、工具名限定走的都是普通工具流程。
 
