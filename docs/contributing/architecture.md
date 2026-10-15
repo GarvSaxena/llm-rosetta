@@ -91,6 +91,32 @@ Passthrough 数据带有 converter dialect 标签，例如 `open_responses` 或 
 
 Intrinsic（provider 托管的）服务端工具由**目标 shim**决定，与格式名无关。`resolve_intrinsic_tools` 从*已解析*的 shim 上读 `ToolsConfig.intrinsic_tools`，并会先把 shim 名解析成对象，因此网关的 `target_shim=route.shim_name` 与库层传 shim 对象的行为完全一致。某个客户端格式能否原生声明服务端工具，同样是 **converter** 的属性（`BaseConverter._SUPPORTS_NATIVE_SERVER_TOOLS`）而非硬编码的格式字符串：Chat Completions 置为 `False`，这正是允许把以受支持 kind 命名的普通 function 提升为 intrinsic 的开关。
 
+## Intrinsic 工具是派生的工具调用
+
+Intrinsic（provider 托管的）工具就是多了一个参数的普通工具调用，而不是一套平行的类型系统。IR 用客户端工具所用的同一组结构承载它：`ToolCallPart` / `ToolResultPart` 带 `tool_type="intrinsic"`，`ToolDefinition` 带 `type="intrinsic"`，流式则是 `ToolCallStartEvent` / `ToolCallDeltaEvent` / `ToolResultEvent`。kind（`web_search`、`code_execution`、`google_search` 等）是一等字段 `intrinsic_kind`，通过 `intrinsic_kind_of()` 读取，它会回退到旧的 `provider_metadata` / `metadata` 写法。工具调用的其余字段（`tool_call_id`、`tool_input`、`result`、`tool_group`、`cache_hint`、`provider_metadata`）原样继承。kind 绝不从工具名推断。
+
+**身份与配对。** 调用与结果按 `tool_call_id` 配对，绝不按 kind。同一轮里两个同 kind 的调用就是两个调用。
+
+**每条路径只做一次决定。**
+
+| 对象 | 路径 | 策略 |
+| --- | --- | --- |
+| 工具定义 | 请求 | 由目标 shim 的 `ToolsConfig.intrinsic_tools` 决定保留或丢弃。绝不降级成 function：模型会去调用一个客户端运行不了的函数。 |
+| 调用 + 结果 | 请求历史 | 由目标 converter 判断能否重放该调用（`intrinsic_renderable(kind, fields, leg="history")`，外加 `intrinsic_requires_result`）。能则原生写出；不能则由 `degrade_intrinsic_history` 把调用**和**它的结果一起改写成普通 function 对。 |
+| 调用 + 结果 | 响应、流式 | 永不降级：客户端并没有执行该调用，所以绝不把它当成客户端调用交给客户端。目标渲染不了的内容会被丢弃并上报。 |
+
+历史降级这一步在 `resolve_intrinsic_tools` 之后、`qualify_tool_names` 之前运行，同格式路由也会跑。降级后的函数对带有 `provider_metadata["_downgraded_from"] = {"type": "intrinsic", "kind": ...}` 标记，名字由 kind 派生且对名字字符安全（客户端已声明同名函数时改为 `{kind}_intrinsic`），并在转换 warnings 里上报一次。这一步之后它就是普通 function 调用，配对、孤儿修复、工具名限定走的都是普通工具流程。
+
+**Converter。** `BaseToolOps` 负责分派（`ir_tool_call_to_p`、`ir_tool_result_to_p`）；converter 只覆盖钩子：`intrinsic_renderable`、`ir_intrinsic_call_to_p`、`ir_intrinsic_result_to_p`、`intrinsic_requires_result`。钩子不返回内容时，回落到 converter 原有的客户端路径。converter 自己只保留 kind 表和原生形状，关于 intrinsic 的其他事情都不归它管。
+
+**原生保真。** `metadata["_native"]` 和 provider 签名只对其来源 provider 有效（`converters/base/helpers/opaque.py`）。外来的会被丢弃，或换成目标要求的占位值。
+
+**服务端工具 id。** 原生服务端条目必须带目标要求的 id 前缀（Anthropic 是 `srvtoolu_`，OpenAI 是 `ws_` / `ci_`）。`prefixed_tool_call_id` 以确定性的方式加上前缀，已经带前缀的 id 保持不变，所以调用与结果仍然配对，同 provider 回放也不受影响。
+
+**哪些内容能跨格式。** 每条跨格式路径都对真实上游（Anthropic、OpenAI Responses、Google Interactions）做过回放；矩阵里的十二对都返回 `200`。目标有同名 kind 且 IR 带齐目标所需字段时，原生写出；否则写成 function 对（Anthropic 的 `encrypted_content`、OpenAI 的 `container_id` 无法凭空造出）。`web_search` 与 `google_search` 这类 kind 之间没有语义等价表：kind 按 provider 声明，依据是每个上游被实测接受的内容。
+
+回放对签名刻意从宽：Google Interactions 接受去掉任一签名的 `google_search` 历史，所以 result 签名不做携带。
+
 ## Round-Trip 兼容性
 
 所有转换路径必须保持 **round-trip 兼容性**。每个变更都必须针对以下场景进行测试：
