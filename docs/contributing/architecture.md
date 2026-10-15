@@ -103,7 +103,26 @@ An intrinsic (provider-hosted) tool is an ordinary tool call with one extra para
 | --- | --- | --- |
 | Definition | request | Kept or dropped by the target shim's `ToolsConfig.intrinsic_tools`. Never degraded to a function: the model would call something the client cannot run. |
 | Call + result | request history | The target converter says whether it can replay the call (`intrinsic_renderable(kind, fields, leg="history")`, plus `intrinsic_requires_result`). If it can, the pair is written natively. If it cannot, `degrade_intrinsic_history` rewrites the call **and** its result, together, into an ordinary function pair. |
-| Call + result | response, stream | Never degraded: the client did not run the call, so it is never handed a client call. What the target cannot render is dropped and reported. |
+| Call + result | response, stream | Never degraded: a response is a call the client did not run, so handing it over as a client call would tell the client to execute something it never asked for. A part the target cannot render goes to `dropped_intrinsic_call` / `dropped_intrinsic_result` — empty, plus a warning naming the kind. |
+
+The rule lives in the base template, not one converter at a time, so it cannot
+hold for some dialects and not others. Measured per dialect (a foreign kind on
+each leg):
+
+| dialect | history | response | stream |
+| --- | --- | --- | --- |
+| messages | degrade | drop | drop |
+| google_generate | degrade | drop | drop |
+| google_interactions | degrade | drop | drop |
+| open_responses | degrade | drop | drop |
+| chat_completions | degrade | drop | drop |
+
+`chat_completions` degrades on the history leg even though it has no server-tool
+vocabulary at all: a history pair the client already saw is context, and a
+function call named after the kind carries it. On the other two legs it drops,
+like everyone else; its stream writer records the drop on the stream context so
+the arguments delta and the finish flush go with the call rather than leaking
+after a start that was never written.
 
 The history pass runs after `resolve_intrinsic_tools` and before `qualify_tool_names`, on same-format routes too. A degraded pair is marked `provider_metadata["_downgraded_from"] = {"type": "intrinsic", "kind": ...}`, takes a name-safe function name derived from the kind (qualified `{kind}_intrinsic` when the client already declared a function of that name), and is reported once in the conversion warnings. After the pass the pair is an ordinary function call, so pairing, orphan repair and name qualification are the ordinary tool flows.
 
