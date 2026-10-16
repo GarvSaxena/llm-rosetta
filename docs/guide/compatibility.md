@@ -202,6 +202,47 @@ Google built-in tools (`googleSearch`, `codeExecution`) appear as tool entries w
 
 ---
 
+#### 5c. Tool Strict Mode
+
+!!! note "Severity: Low — a validation guarantee does not travel"
+
+**Provider pair**: any → Google generateContent / Google Interactions
+
+`strict` asks the provider to validate a call's arguments against the tool's
+JSON Schema. OpenAI Chat (`function.strict`), OpenAI Responses (`strict`) and
+Anthropic Messages (`strict`) all carry it, and the IR states it once as
+`ToolDefinition.strict` — so it survives every route among those three. Neither
+Google format has the concept, so the flag is dropped there rather than
+degraded; the schema itself still travels, and Google validates against it on
+its own terms.
+
+Measured: Anthropic accepts `strict: true` but answers `400` unless the schema
+sets `additionalProperties: false`, so a client asking for strict mode on that
+route must send a closed schema. Closing it for the client would change the
+tool's meaning, so the library does not.
+
+#### 5d. Tool-Choice Allow-Lists
+
+!!! warning "Severity: Medium — a restriction is widened, not dropped"
+
+**Provider pair**: Responses / Google → OpenAI Chat Completions, → Anthropic Messages
+
+A `tool_choice` may name the tools the model is allowed to pick from. Four
+formats state it, in four shapes; the IR states it once as
+`ToolChoice.allowed_tools`, so it survives any route between Responses,
+Google generateContent and Google Interactions — including lists of several
+names, which previously collapsed to the first.
+
+The other two have no equivalent. A request bound for them is **widened** back
+to its bare mode (`auto`, or `required` for a "must call one of these" choice),
+and the conversion reports it in the warnings: the model may then call any
+declared tool, which is a weaker guarantee than the client asked for. Chat
+Completions is the sharper case — OpenAI's schema documents the variant, but
+the live Chat API rejects it (`400 Missing required parameter:
+'tool_choice.function.'`), so a Chat-shaped allow-list is read (so it can be
+routed to a format that does state it) and never written.
+
+
 ### 6. Streaming Issues
 
 #### 6a. Tool Call Argument Accumulation

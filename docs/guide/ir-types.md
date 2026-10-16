@@ -144,19 +144,25 @@ from llm_rosetta import ToolDefinition, ToolChoice
 
 tool: ToolDefinition = {
     "type": "function",
-    "function": {
-        "name": "get_weather",
-        "description": "Get the weather for a location",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "location": {"type": "string"},
-            },
-            "required": ["location"],
+    "name": "get_weather",
+    "description": "Get the weather for a location",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "location": {"type": "string"},
         },
+        "required": ["location"],
     },
+    "strict": True,  # optional: ask the provider to validate the arguments
 }
 ```
+
+A tool's identity is `(name, tool_group)`. `tool_group` is present only when
+the source addressed the tool inside a named container, and it is what keeps
+two otherwise identical tools apart.
+
+`ToolChoice.allowed_tools` restricts the choice to named tools; see
+[Tool Ops — Restricting the choice to named tools](../api/tool-ops.md#restricting-the-choice-to-named-tools).
 
 ## Multimodal Tool Results
 

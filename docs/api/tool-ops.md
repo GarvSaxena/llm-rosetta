@@ -29,6 +29,8 @@ TypedDict:
 | `description` | `str` | ✓ | Plain-language description of what the tool does. |
 | `parameters` | `dict` | ✓ | JSON Schema object describing the function arguments. |
 | `required_parameters` | `list[str]` | optional | Required parameter names (merged into the JSON Schema on conversion). |
+| `tool_group` | `str` | optional | Group the tool was declared in, when the source had containers. Part of the tool's identity: `(name, tool_group)`. |
+| `strict` | `bool` | optional | Ask the provider to validate arguments against `parameters`. Chat Completions, Responses and Messages all carry it; the Google formats have no equivalent and drop it. Absent is not `False` — a target that defaults the flag emits its own default. |
 | `metadata` | `dict` | optional | Pass-through extra fields; provider converters may use or ignore these. |
 
 ```python
@@ -46,6 +48,27 @@ ir_tool: ToolDefinition = {
     },
 }
 ```
+
+### Restricting the choice to named tools
+
+`ToolChoice.allowed_tools` narrows "any tool" to a named subset. The wire
+spellings disagree, so the IR states the concept once, as tool identities:
+
+```python
+ir_choice: ToolChoice = {
+    "mode": "any",  # must call one of the listed tools
+    "allowed_tools": [{"name": "get_weather"}],
+    # {"name": "search", "tool_group": "tasks"} when the tool is grouped
+}
+```
+
+| Provider | Allow-list wire shape |
+|---|---|
+| `chat_completions` | `{"type": "allowed_tools", "mode": …, "tools": [{"type": "function", "function": {"name": …}}]}` — read, but **no Chat upstream we measured accepts it** (`api.openai.com` answers 400), so a Chat target warns and widens the choice back to its bare mode |
+| `open_responses` | `{"type": "allowed_tools", "mode": …, "tools": [{"type": "function", "name": …}]}`; each entry's `type` must match how the tool was declared, so it is derived from the declaration rather than stored |
+| `messages` | no equivalent — the restriction is dropped with a warning |
+| `google_generate` | `function_calling_config.allowed_function_names` (a flat list of names) |
+| `google_interactions` | `{"allowed_tools": {"mode": "any", "tools": [name, …]}}` |
 
 ## Provider wire formats
 
