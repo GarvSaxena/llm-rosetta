@@ -139,19 +139,24 @@ from llm_rosetta import ToolDefinition, ToolChoice
 
 tool: ToolDefinition = {
     "type": "function",
-    "function": {
-        "name": "get_weather",
-        "description": "获取指定位置的天气",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "location": {"type": "string"},
-            },
-            "required": ["location"],
+    "name": "get_weather",
+    "description": "获取指定位置的天气",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "location": {"type": "string"},
         },
+        "required": ["location"],
     },
+    "strict": True,  # 可选：要求提供方校验参数
 }
 ```
+
+工具的身份是 `(name, tool_group)`。只有当来源把工具放在具名容器里时才有
+`tool_group`，它正是把两个其他方面完全相同的工具区分开的东西。
+
+`ToolChoice.allowed_tools` 把选择限定到具名工具，见
+[工具操作——把选择限定到具名工具](../api/tool-ops.md#把选择限定到具名工具)。
 
 ## 多模态工具结果
 

@@ -202,6 +202,40 @@ Google 内建工具（`googleSearch`、`codeExecution`）作为没有 `name` 字
 
 ---
 
+#### 5c. 工具的 strict 模式
+
+!!! note "严重度：低——校验承诺无法随行"
+
+**提供方组合**：任意 → Google generateContent / Google Interactions
+
+`strict` 要求提供方按工具的 JSON Schema 校验调用参数。OpenAI Chat（`function.strict`）、
+OpenAI Responses（`strict`）与 Anthropic Messages（`strict`）三家都有，IR 用
+`ToolDefinition.strict` 只表述一次——所以在这三家之间的任何路径上它都能存活。两个
+Google 格式没有这个概念，因此该标志在那里是被丢弃而非降级；schema 本身照常传递，
+Google 按自己的方式对校验它。
+
+实测：Anthropic 接受 `strict: true`，但除 schema 设了 `additionalProperties: false`
+之外一律返回 `400`——也就是说走这条路要开 strict 的客户端必须自己发封闭 schema。
+替客户端补上会改变工具的语义，所以库不代劳。
+
+#### 5d. tool_choice 白名单
+
+!!! warning "严重度：中——被放宽的是限制，不是可选字段"
+
+**提供方组合**：Responses / Google → OpenAI Chat Completions、→ Anthropic Messages
+
+`tool_choice` 可以指定模型只能从哪些工具里挑。四个格式都有这个能力，写法各不相同；
+IR 用 `ToolChoice.allowed_tools` 只表述一次，因此它在 Responses、Google generateContent
+与 Google Interactions 之间的任何路径上都能存活——包括含多个名字的列表，以前那些名字
+会被截断到第一个。
+
+另外两家没有对应能力。目标为它们时，选择会被**放宽**回裸 mode（`auto`；"必须调用其中
+之一"的选择则是 `required`），并在转换告警里报告：此后模型可以调用任何已声明的工具，
+这是比客户端要求更弱的承诺。Chat Completions 是更尖锐的一例——OpenAI 的 schema 里
+写有这一变体，但线上 Chat API 会拒绝它（`400 Missing required parameter:
+'tool_choice.function.'`），所以 Chat 形状的白名单会被读取（以便路由到确实支持它的
+格式），但永远不会被写出。
+
 ### 6. 流式传输问题
 
 #### 6a. 工具调用参数累积

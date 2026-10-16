@@ -25,6 +25,8 @@ title: Tool Ops
 | `description` | `str` | ✓ | 工具功能的自然语言描述。 |
 | `parameters` | `dict` | ✓ | 描述函数参数的 JSON Schema 对象。 |
 | `required_parameters` | `list[str]` | 可选 | 必填参数名列表（转换时会合并进 JSON Schema）。 |
+| `tool_group` | `str` | 可选 | 来源把工具放在具名容器里时，该工具所属的分组。它是工具身份的一部分：`(name, tool_group)`。 |
+| `strict` | `bool` | 可选 | 要求提供方按 `parameters` 校验参数。Chat Completions、Responses、Messages 三家都有；两个 Google 格式没有对应概念，会丢弃。缺省不等于 `False`——本身带默认值的目标格式会发它自己的默认值。 |
 | `metadata` | `dict` | 可选 | 额外字段直通；各提供方转换器可自行使用或忽略。 |
 
 ```python
@@ -42,6 +44,27 @@ ir_tool: ToolDefinition = {
     },
 }
 ```
+
+### 把选择限定到具名工具
+
+`ToolChoice.allowed_tools` 把"任意工具"收窄到指定的一组。各家的 wire 写法并不一致，
+所以 IR 只表述一次这个概念——用工具身份：
+
+```python
+ir_choice: ToolChoice = {
+    "mode": "any",  # 必须调用所列工具之一
+    "allowed_tools": [{"name": "get_weather"}],
+    # 带分组的工具写成 {"name": "search", "tool_group": "tasks"}
+}
+```
+
+| 提供方 | 白名单 wire 结构 |
+|---|---|
+| `chat_completions` | `{"type": "allowed_tools", "mode": …, "tools": [{"type": "function", "function": {"name": …}}]}`——会读，但**我们实测过的 Chat 上游都不接受它**（`api.openai.com` 返回 400），所以以 Chat 为目标时会告警，并把选择放宽回它的裸 mode |
+| `open_responses` | `{"type": "allowed_tools", "mode": …, "tools": [{"type": "function", "name": …}]}`；每个条目的 `type` 必须与工具声明方式一致，因此它取自声明而非存在 IR 里 |
+| `messages` | 无对应概念——限制被丢弃并告警 |
+| `google_generate` | `function_calling_config.allowed_function_names`（扁平的名字列表） |
+| `google_interactions` | `{"allowed_tools": {"mode": "any", "tools": [名字, …]}}` |
 
 ## 各提供方的 wire 格式
 
