@@ -136,6 +136,68 @@ The history pass runs after `resolve_intrinsic_tools` and before `qualify_tool_n
 
 Replay is deliberately lenient on signatures: Google Interactions accepts a `google_search` history with either signature removed, so a result signature is not carried.
 
+## Citations Across Dialects
+
+A citation is an annotation of text the model wrote: which source it drew on, and
+often which span. Every dialect has such a thing and no two spell it the same
+way, so it gets the same treatment as the tools above — a first-class IR part
+with a discriminator, one shared field set, and per-dialect tables.
+
+**The IR part.** `CitationPart` carries `citation_type`, the fields every dialect
+shares (`url`, `title`, `cited_text`, `start_index`, `end_index`) flat on the
+part, and a dialect's own locator fields under `provider_metadata`, keyed by
+provider. Reads go through `converters/base/helpers/citations.py`
+(`citation_type_of`, one accessor per shared field), never through the shape of
+the fields. The pre-2026 spelling, which nested the shared fields under
+`url_citation` / `text_citation` and carried no kind, is still **read** and never
+written — the same one-spelling rule `tool_group` and `intrinsic_kind` follow.
+
+**The vocabularies.**
+
+| dialect | native form | kinds |
+| --- | --- | --- |
+| chat_completions | `message.annotations[]`, payload nested under `url_citation` | `url_citation` |
+| open_responses | content-part `annotations[]`, flat | `url_citation`, `file_citation`, `container_file_citation` |
+| google_interactions | content-part `annotations[]`, flat, snake_case | `url_citation` |
+| google_generate | candidate-level `groundingMetadata` (chunks + supports) | sources as `url_citation` |
+| messages | `citations[]` inside the text block they annotate | its own five: `char_location`, `page_location`, `content_block_location`, `search_result_location`, `web_search_result_location` |
+
+Two of those share a shape exactly: the Responses API and Interactions both send
+`{start_index, end_index, url, title, type: "url_citation"}`, flat. That pair
+converts losslessly; the rest map through the shared fields.
+
+**What converts, measured.** Every dialect's URL-bearing citation converts to the
+other four. The one cell that does not is a foreign citation *into* Anthropic,
+and it is a property of that API rather than a missing writer: its request
+validator accepts exactly the five tags above — `url_citation` and
+`text_citation` are rejected outright — and requires each citation to point at a
+document or `search_result` block the message carries, or at an `encrypted_index`
+the provider itself issued. Nothing else can be constructed honestly, so the
+writer returns nothing and the caller reports the drop. In the other direction
+Anthropic's reader exports its URL-bearing kinds, so an Anthropic citation can
+leave for any other dialect; nothing comes back.
+
+**Structure is per dialect.** Anthropic embeds citations in the text block they
+annotate, so the reader splits them into their own parts and the writers hang
+them back on the preceding text block. Google has no annotation at all: its
+citations are the candidate's `groundingMetadata`, rebuilt from the parts
+(sources become chunks, spans become the supports that index into them), while
+its search-level metadata — the queries and the rendered entry point — is not a
+citation and rides the message or the finish event once.
+
+**Streaming.** A streamed citation is a `citation_delta` event carrying the same
+part, emitted where the provider reported it rather than deferred: a candidate
+that produced no text still carries its sources. Each dialect feeds it from its
+own carrier (`citations_delta`, `response.output_text.annotation.added`,
+`text_annotation_delta`, or Google's chunk-level metadata) and the base converter
+answers it by default with a warning, so a dialect with no carrier reports the
+loss rather than dropping it silently.
+
+**Losses are reported.** A citation a target cannot render — a document citation
+aimed at a dialect that only knows URLs, a citation with no text block to hang
+off — goes through `report_dropped_citation`, which prefers the conversion's
+warning sink and always writes the log line.
+
 ## Round-Trip Compatibility
 
 All conversion paths must maintain **round-trip compatibility**. Every change must be tested against these scenarios:
