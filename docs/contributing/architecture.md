@@ -129,6 +129,58 @@ Intrinsic（provider 托管的）工具就是多了一个参数的普通工具�
 
 回放对签名刻意从宽：Google Interactions 接受去掉任一签名的 `google_search` 历史，所以 result 签名不做携带。
 
+## 引用（citation）的跨格式转换
+
+引用是模型对自己所写文本的标注：用了哪个来源，通常还包括哪一段。每种 dialect
+都有这个东西，但没有两种拼法相同，所以它和上面的工具一样处理：IR 里一个带判别式
+的一等部件、一套共有的公共字段、以及逐 dialect 的映射表。
+
+**IR 部件。** `CitationPart` 带 `citation_type` 判别式，各家共有的字段
+（`url`、`title`、`cited_text`、`start_index`、`end_index`）平铺在部件上，
+dialect 私有的定位字段放在 `provider_metadata` 下（按 provider 分键）。读取一律走
+`converters/base/helpers/citations.py`（`citation_type_of` 加逐字段的访问器），
+**不从字段形状推断**。2026 年以前那种把公共字段嵌在 `url_citation` /
+`text_citation` 里、且不带 kind 的旧拼法仍然**可读**、但不再写出——与 `tool_group`、
+`intrinsic_kind` 遵循同一条"一个概念一种写法"的规则。
+
+**各家的形态。**
+
+| dialect | 原生位置 | 种类 |
+| --- | --- | --- |
+| chat_completions | `message.annotations[]`，载荷嵌在 `url_citation` 键下 | `url_citation` |
+| open_responses | content part 的 `annotations[]`，平铺 | `url_citation`、`file_citation`、`container_file_citation` |
+| google_interactions | content part 的 `annotations[]`，平铺，snake_case | `url_citation` |
+| google_generate | candidate 级的 `groundingMetadata`（chunks + supports） | 来源表达为 `url_citation` |
+| messages | 它所标注的那个 text block 里的 `citations[]` | 它自己的五种：`char_location`、`page_location`、`content_block_location`、`search_result_location`、`web_search_result_location` |
+
+其中两家形态完全一致：Responses API 与 Interactions 都发平铺的
+`{start_index, end_index, url, title, type: "url_citation"}`。这一对是无损互转的，
+其余各家通过公共字段映射。
+
+**实测的转换范围。** 每个 dialect 带 URL 的引用都能转到另外四家。唯一不成立的格子
+是**外来引用写进 Anthropic**，而这是那个 API 的性质、不是缺一个 writer：它的请求
+校验器只接受上面那五个 tag（`url_citation`、`text_citation` 直接拒绝），而且每条
+citation 必须指向消息里真实存在的 document 或 `search_result` block，或者它自己
+签发的 `encrypted_index`。除此之外无法诚实地构造出来，所以 writer 返回空、由调用方
+报告这次丢弃。反方向是通的：Anthropic 的读侧会把带 URL 的那几种导出，因此
+Anthropic 的引用可以流向其他任何 dialect，但没有东西能流回来。
+
+**结构因 dialect 而异。** Anthropic 把 citation 嵌在它所标注的 text block 里，所以
+读侧把它们拆成独立部件、写侧再挂回前面那个 text block。Google 完全没有 annotation：
+它的引用就是 candidate 的 `groundingMetadata`，由部件重建（来源变成 chunks、span
+变成指向它们的 supports），而它的搜索级 metadata——查询词与渲染出的入口——不是
+引用，只在消息或 finish 事件上带一份。
+
+**流式。** 流式引用是 `citation_delta` 事件，带同一个部件，在 provider 报告它的
+位置发出、不推迟：一个没有产生文本的 candidate 也照样带着它的来源。每个 dialect
+从自己的载体喂它（`citations_delta`、`response.output_text.annotation.added`、
+`text_annotation_delta`，或 Google 的 chunk 级 metadata），而 base converter 对
+它默认以告警作答，因此没有原生载体的 dialect 会报告这次丢失，而不是静默丢弃。
+
+**丢失会被报告。** 目标无法呈现的引用——发往只认 URL 的 dialect 的文档引用、没有
+text block 可挂的引用——都走 `report_dropped_citation`：优先写进本次转换的 warning
+sink，同时总是写日志。
+
 ## Round-Trip 兼容性
 
 所有转换路径必须保持 **round-trip 兼容性**。每个变更都必须针对以下场景进行测试：
