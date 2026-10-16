@@ -12,6 +12,10 @@ from typing import Any, cast
 from ...types.ir import ToolCallPart, ToolResultPart
 from ...types.ir.tools import ToolChoice, ToolDefinition
 from ..base import BaseToolOps, IntrinsicLeg
+from ..base.tools import (
+    allowed_tool_names,
+    allowed_tool_refs,
+)
 from ..base.tools.intrinsic import (
     get_native_definition,
     intrinsic_kind_of,
@@ -486,6 +490,18 @@ class GoogleInteractionsToolOps(BaseToolOps):
     def ir_tool_choice_to_p(ir_tool_choice: ToolChoice, **kwargs: Any) -> Any:
         """IR ToolChoice → Interactions tool_choice."""
         mode = ir_tool_choice["mode"]
+
+        # An allow-list travels whole: the IR keeps every identity, and this
+        # dialect states them as a flat list beside the mode.
+        names = allowed_tool_names(ir_tool_choice)
+        if names:
+            return {
+                "allowed_tools": {
+                    "mode": "any",
+                    "tools": names,
+                }
+            }
+
         if mode in ("auto", "any", "none"):
             return mode
         if mode == "tool":
@@ -510,11 +526,16 @@ class GoogleInteractionsToolOps(BaseToolOps):
         if isinstance(provider_tool_choice, dict):
             allowed = provider_tool_choice.get("allowed_tools", {})
             tools = allowed.get("tools", [])
-            if tools:
-                # IR ToolChoice only supports a single tool name; extra tools are dropped
-                return {"mode": "tool", "tool_name": tools[0]}
             mode = allowed.get("mode", "auto")
-            return {"mode": mode if mode in ("auto", "any", "none") else "auto"}
+            ir_mode = mode if mode in ("auto", "any", "none") else "auto"
+            refs = allowed_tool_refs(tools)
+            if refs:
+                # Every listed tool travels; the restriction is the point.
+                return cast(
+                    ToolChoice,
+                    {"mode": ir_mode, "tool_name": "", "allowed_tools": refs},
+                )
+            return {"mode": ir_mode}
         return {"mode": "auto"}
 
     # ── Base class abstract method implementations ──────────────────

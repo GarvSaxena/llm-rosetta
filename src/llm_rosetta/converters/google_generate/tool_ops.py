@@ -28,7 +28,12 @@ from ...types.ir import (
 from ...types.ir.tools import ToolCallConfig
 from ..base import BaseToolOps, IntrinsicLeg
 from ..base.helpers.opaque import CARRIER_KEY
-from ..base.tools import sanitize_schema, sanitize_tool_call_id
+from ..base.tools import (
+    allowed_tool_names,
+    allowed_tool_refs,
+    sanitize_schema,
+    sanitize_tool_call_id,
+)
 from ..base.tools.intrinsic import (
     get_native_definition,
     intrinsic_kind_of,
@@ -324,6 +329,17 @@ class GoogleGenerateToolOps(BaseToolOps):
         """
         mode = ir_tool_choice.get("mode")
 
+        # An allow-list narrows "any" to the listed tools; Google states it as
+        # a flat list beside the mode, so every name travels.
+        names = allowed_tool_names(ir_tool_choice)
+        if names:
+            return {
+                "function_calling_config": {
+                    "mode": "ANY",
+                    "allowed_function_names": names,
+                }
+            }
+
         if mode == "none":
             return {"function_calling_config": {"mode": "NONE"}}
         elif mode == "auto":
@@ -367,12 +383,20 @@ class GoogleGenerateToolOps(BaseToolOps):
 
         ir_mode = mode_map.get(mode, "auto")
 
-        # Check for specific tool names
+        # Names beside the mode restrict the choice to those tools; without
+        # them "ANY" means any declared tool.  IR states the restriction as
+        # identities and keeps the mode, so a list of several names survives
+        # instead of collapsing to the first.
         allowed_names = fcc.get("allowed_function_names") or fcc.get(
             "allowedFunctionNames", []
         )
         if allowed_names and ir_mode == "any":
-            return cast(ToolChoice, {"mode": "tool", "tool_name": allowed_names[0]})
+            refs = allowed_tool_refs(allowed_names)
+            if refs:
+                return cast(
+                    ToolChoice,
+                    {"mode": "any", "tool_name": "", "allowed_tools": refs},
+                )
 
         return cast(ToolChoice, {"mode": ir_mode, "tool_name": ""})
 
